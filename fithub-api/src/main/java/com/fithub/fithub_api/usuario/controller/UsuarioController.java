@@ -3,10 +3,10 @@ package com.fithub.fithub_api.usuario.controller;
 
 import com.fithub.fithub_api.usuario.entity.Usuario;
 import com.fithub.fithub_api.usuario.service.UsuarioService;
-import com.fithub.fithub_api.web.dto.UsuarioCreateDto;
-import com.fithub.fithub_api.web.dto.UsuarioResponseDto;
-import com.fithub.fithub_api.web.dto.UsuarioSenhaDto;
-import com.fithub.fithub_api.web.dto.mapper.UsuarioMapper;
+import com.fithub.fithub_api.usuario.dto.UsuarioCreateDto;
+import com.fithub.fithub_api.usuario.dto.UsuarioResponseDto;
+import com.fithub.fithub_api.usuario.dto.UsuarioSenhaDto;
+import com.fithub.fithub_api.usuario.mapper.UsuarioMapper;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

@@ -1,8 +1,8 @@
 package com.fithub.fithub_api.plano.controller;
 
-import com.fithub.fithub_api.web.dto.PlanoCreateDto;
-import com.fithub.fithub_api.web.dto.PlanoResponseDto;
-import com.fithub.fithub_api.web.dto.PlanoUpdateDto;
+import com.fithub.fithub_api.plano.dto.PlanoCreateDto;
+import com.fithub.fithub_api.plano.dto.PlanoResponseDto;
+import com.fithub.fithub_api.plano.dto.PlanoUpdateDto;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;

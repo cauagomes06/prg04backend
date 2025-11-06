@@ -1,8 +1,8 @@
 package com.fithub.fithub_api.perfil.service;
 
 import com.fithub.fithub_api.perfil.entity.Perfil;
-import com.fithub.fithub_api.web.dto.PerfilResponseDto;
-import com.fithub.fithub_api.web.dto.PerfilUpdateDto;
+import com.fithub.fithub_api.perfil.dto.PerfilResponseDto;
+import com.fithub.fithub_api.perfil.dto.PerfilUpdateDto;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.RequestBody;
 

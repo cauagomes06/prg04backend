@@ -1,10 +1,10 @@
 package com.fithub.fithub_api.exercicio.controller;
 
-import com.fithub.fithub_api.web.dto.ExercicioCreateDto;
-import com.fithub.fithub_api.web.dto.ExercicioResponseDto;
-import jakarta.validation.Valid;
+
+
+import com.fithub.fithub_api.exercicio.dto.ExercicioCreateDto;
+import com.fithub.fithub_api.exercicio.dto.ExercicioResponseDto;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.List;
 

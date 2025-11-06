@@ -4,12 +4,11 @@ import com.fithub.fithub_api.exception.PlanoUniqueViolationException;
 import com.fithub.fithub_api.plano.entity.Plano;
 import com.fithub.fithub_api.plano.repository.PlanoRepository;
 import com.fithub.fithub_api.usuario.repository.UsuarioRepository;
-import com.fithub.fithub_api.web.dto.PlanoResponseDto;
-import com.fithub.fithub_api.web.dto.PlanoUpdateDto;
-import com.fithub.fithub_api.web.dto.mapper.PlanoMapper;
+import com.fithub.fithub_api.plano.dto.PlanoResponseDto;
+import com.fithub.fithub_api.plano.dto.PlanoUpdateDto;
+import com.fithub.fithub_api.plano.mapper.PlanoMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

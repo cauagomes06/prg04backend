@@ -1,8 +1,8 @@
 package com.fithub.fithub_api.usuario.controller;
 
-import com.fithub.fithub_api.web.dto.UsuarioCreateDto;
-import com.fithub.fithub_api.web.dto.UsuarioResponseDto;
-import com.fithub.fithub_api.web.dto.UsuarioSenhaDto;
+import com.fithub.fithub_api.usuario.dto.UsuarioCreateDto;
+import com.fithub.fithub_api.usuario.dto.UsuarioResponseDto;
+import com.fithub.fithub_api.usuario.dto.UsuarioSenhaDto;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;

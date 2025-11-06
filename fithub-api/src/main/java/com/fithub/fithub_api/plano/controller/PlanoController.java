@@ -3,10 +3,10 @@ package com.fithub.fithub_api.plano.controller;
 
 import com.fithub.fithub_api.plano.entity.Plano;
 import com.fithub.fithub_api.plano.service.PlanoService;
-import com.fithub.fithub_api.web.dto.PlanoCreateDto;
-import com.fithub.fithub_api.web.dto.PlanoResponseDto;
-import com.fithub.fithub_api.web.dto.PlanoUpdateDto;
-import com.fithub.fithub_api.web.dto.mapper.PlanoMapper;
+import com.fithub.fithub_api.plano.dto.PlanoCreateDto;
+import com.fithub.fithub_api.plano.dto.PlanoResponseDto;
+import com.fithub.fithub_api.plano.dto.PlanoUpdateDto;
+import com.fithub.fithub_api.plano.mapper.PlanoMapper;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -29,6 +29,8 @@ public class PlanoController implements PlanoIController{
 
         return ResponseEntity.status(HttpStatus.CREATED).body(PlanoMapper.toPlanoDto(novoPlano));
     }
+
+    @Override
     @GetMapping
     public ResponseEntity<List<PlanoResponseDto>> listarPlanos() {
 
@@ -36,19 +38,20 @@ public class PlanoController implements PlanoIController{
         return ResponseEntity.ok(PlanoMapper.toPlanoDtoList(listPlano));
     }
 
+    @Override
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<Void> deletePlano(@PathVariable Long id) {
         planoService.deletePlano(id);
         return  ResponseEntity.noContent().build();
     }
-
+    @Override
     @GetMapping("/{id}")
     public ResponseEntity<PlanoResponseDto> buscarPlanoByid(@PathVariable Long id) {
         Plano plano = planoService.buscarPlanoById(id);
 
         return ResponseEntity.ok(PlanoMapper.toPlanoDto(plano));
     }
-
+    @Override
     @PutMapping("/update/{id}")
     public ResponseEntity<PlanoResponseDto> editarPlano(
             @PathVariable Long id,@RequestBody @Valid PlanoUpdateDto updateDto){

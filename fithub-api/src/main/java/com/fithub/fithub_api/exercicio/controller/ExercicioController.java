@@ -1,11 +1,14 @@
 package com.fithub.fithub_api.exercicio.controller;
 
 
+import com.fithub.fithub_api.exercicio.dto.ExercicioCreateDto;
+import com.fithub.fithub_api.exercicio.dto.ExercicioResponseDto;
 import com.fithub.fithub_api.exercicio.entity.Exercicio;
+import com.fithub.fithub_api.exercicio.mapper.ExercicioMapper;
 import com.fithub.fithub_api.exercicio.service.ExercicioService;
-import com.fithub.fithub_api.web.dto.ExercicioCreateDto;
-import com.fithub.fithub_api.web.dto.ExercicioResponseDto;
-import com.fithub.fithub_api.web.dto.mapper.ExercicioMapper;
+
+
+
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

@@ -2,7 +2,7 @@ package com.fithub.fithub_api.treino.service;
 
 import com.fithub.fithub_api.treino.entity.Treino;
 import com.fithub.fithub_api.usuario.entity.Usuario;
-import com.fithub.fithub_api.web.dto.TreinoCreateDto;
+import com.fithub.fithub_api.treino.dto.TreinoCreateDto;
 
 import java.util.List;
 

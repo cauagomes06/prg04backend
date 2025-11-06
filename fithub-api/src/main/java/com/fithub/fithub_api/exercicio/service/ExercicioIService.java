@@ -1,10 +1,9 @@
 package com.fithub.fithub_api.exercicio.service;
 
 import com.fithub.fithub_api.exercicio.entity.Exercicio;
-import com.fithub.fithub_api.web.dto.ExercicioCreateDto;
+import com.fithub.fithub_api.exercicio.dto.ExercicioCreateDto;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface ExercicioIService {
 

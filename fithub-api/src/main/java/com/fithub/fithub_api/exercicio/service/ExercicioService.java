@@ -4,7 +4,7 @@ import com.fithub.fithub_api.exception.EntityNotFoundException;
 import com.fithub.fithub_api.exercicio.entity.Exercicio;
 import com.fithub.fithub_api.exercicio.repository.ExercicoRepository;
 import com.fithub.fithub_api.itemtreino.repository.ItemTreinoRepository;
-import com.fithub.fithub_api.web.dto.ExercicioCreateDto;
+import com.fithub.fithub_api.exercicio.dto.ExercicioCreateDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;

@@ -4,15 +4,13 @@ package com.fithub.fithub_api.perfil.controller;
 import com.fithub.fithub_api.perfil.entity.Perfil;
 
 import com.fithub.fithub_api.perfil.service.PerfilService;
-import com.fithub.fithub_api.web.dto.PerfilCreateDto;
-import com.fithub.fithub_api.web.dto.PerfilResponseDto;
-import com.fithub.fithub_api.web.dto.PerfilUpdateDto;
-import com.fithub.fithub_api.web.dto.PlanoResponseDto;
-import com.fithub.fithub_api.web.dto.mapper.PerfilMapper;
+import com.fithub.fithub_api.perfil.dto.PerfilCreateDto;
+import com.fithub.fithub_api.perfil.dto.PerfilResponseDto;
+import com.fithub.fithub_api.perfil.dto.PerfilUpdateDto;
+import com.fithub.fithub_api.perfil.mapper.PerfilMapper;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 

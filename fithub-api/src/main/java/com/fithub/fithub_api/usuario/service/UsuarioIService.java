@@ -2,8 +2,7 @@ package com.fithub.fithub_api.usuario.service;
 
 import com.fithub.fithub_api.usuario.entity.Usuario;
 
-import com.fithub.fithub_api.web.dto.UsuarioCreateDto;
-import org.springframework.security.core.userdetails.UserDetails;
+import com.fithub.fithub_api.usuario.dto.UsuarioCreateDto;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.List;

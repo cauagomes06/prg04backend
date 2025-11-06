@@ -1,8 +1,9 @@
 package com.fithub.fithub_api.perfil.controller;
 
 
-import com.fithub.fithub_api.perfil.entity.Perfil;
-import com.fithub.fithub_api.web.dto.*;
+import com.fithub.fithub_api.perfil.dto.PerfilCreateDto;
+import com.fithub.fithub_api.perfil.dto.PerfilResponseDto;
+import com.fithub.fithub_api.perfil.dto.PerfilUpdateDto;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
