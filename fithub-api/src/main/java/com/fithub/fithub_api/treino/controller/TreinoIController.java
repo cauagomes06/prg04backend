@@ -2,7 +2,7 @@ package com.fithub.fithub_api.treino.controller;
 
 import com.fithub.fithub_api.usuario.entity.Usuario;
 import com.fithub.fithub_api.treino.dto.TreinoCreateDto;
-import com.fithub.fithub_api.web.dto.TreinoResponseDto;
+import com.fithub.fithub_api.treino.dto.TreinoResponseDto;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
 

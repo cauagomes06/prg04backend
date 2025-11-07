@@ -45,6 +45,9 @@ public class Competicao  extends Auditable  implements Serializable {
     @Column(nullable = false)
     private StatusCompeticao status;
 
+    @Column(name = "pontos_vitoria", nullable = false, columnDefinition = "int default 0")
+    private int pontosVitoria = 0; // Pontos que o vencedor receberá
+
     @OneToMany(mappedBy = "competicao", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Inscricao> inscricoes = new HashSet<>();
 

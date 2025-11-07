@@ -1,6 +1,7 @@
 package com.fithub.fithub_api.usuario.controller;
 
 
+import com.fithub.fithub_api.usuario.dto.UsuarioRankingDto;
 import com.fithub.fithub_api.usuario.entity.Usuario;
 import com.fithub.fithub_api.usuario.service.UsuarioService;
 import com.fithub.fithub_api.usuario.dto.UsuarioCreateDto;
@@ -60,4 +61,9 @@ public class UsuarioController implements UsuarioIController {
         return  ResponseEntity.ok(usuarioMapper.toListDto(usuarios));
     }
 
+    @GetMapping("/ranking")
+    public ResponseEntity<List<UsuarioRankingDto>> getRankingGeral() {
+        List<UsuarioRankingDto> ranking = usuarioService.getRankingGeral();
+        return ResponseEntity.ok(ranking);
+    }
 }

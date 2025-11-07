@@ -1,5 +1,6 @@
 package com.fithub.fithub_api.competicao.dto;
 
+import com.fithub.fithub_api.competicao.entity.StatusCompeticao;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -16,4 +17,6 @@ public class CompeticaoResponseDto {
     private LocalDateTime dataFim;
     // Campo calculado,sera preenchido no mapper
     private int totalInscritos;
+    private int pontosVitoria;
+    private StatusCompeticao status;
 }

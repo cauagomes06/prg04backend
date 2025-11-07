@@ -4,6 +4,7 @@ import com.fithub.fithub_api.exception.EntityNotFoundException;
 import com.fithub.fithub_api.perfil.repository.PerfilRepository;
 import com.fithub.fithub_api.pessoa.entity.Pessoa;
 import com.fithub.fithub_api.plano.repository.PlanoRepository;
+import com.fithub.fithub_api.usuario.dto.UsuarioRankingDto;
 import com.fithub.fithub_api.usuario.entity.Usuario;
 import com.fithub.fithub_api.pessoa.dto.PessoaResponseDto;
 import com.fithub.fithub_api.usuario.dto.UsuarioCreateDto;
@@ -20,7 +21,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor // 2. Para injetar as dependências
 public class UsuarioMapper {
 
-    private final ModelMapper modelMapper;
+    public static final ModelMapper modelMapper = new ModelMapper();
     private final PerfilRepository perfilRepository;
     private final PlanoRepository planoRepository;
     private final PasswordEncoder passwordEncoder;
@@ -74,5 +75,25 @@ public class UsuarioMapper {
 
     public List<UsuarioResponseDto> toListDto(List<Usuario> usuarios) {
         return usuarios.stream().map(this::toDto).collect(Collectors.toList());
+    }
+
+    public static UsuarioRankingDto toRankingDto(Usuario usuario) {
+        // Mapeamento automático dos campos com nomes iguais
+        UsuarioRankingDto dto = modelMapper.map(usuario, UsuarioRankingDto.class);
+
+        // Mapeamento manual de campos aninhados ou com nomes diferentes
+        if (usuario.getPessoa() != null) {
+            dto.setNomeCompleto(usuario.getPessoa().getNomeCompleto());
+        }
+
+        dto.setUsuarioId(usuario.getId());
+
+        return dto;
+    }
+
+    public static List<UsuarioRankingDto> toRankingListDto(List<Usuario> usuarios) {
+        return usuarios.stream()
+                .map(UsuarioMapper::toRankingDto)
+                .collect(Collectors.toList());
     }
 }

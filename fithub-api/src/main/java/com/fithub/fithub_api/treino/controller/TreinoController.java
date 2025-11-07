@@ -1,11 +1,11 @@
 package com.fithub.fithub_api.treino.controller;
 
+import com.fithub.fithub_api.treino.dto.TreinoResponseDto;
 import com.fithub.fithub_api.treino.entity.Treino;
 import com.fithub.fithub_api.treino.service.TreinoService;
 import com.fithub.fithub_api.usuario.entity.Usuario;
 import com.fithub.fithub_api.usuario.service.UsuarioService;
 import com.fithub.fithub_api.treino.dto.TreinoCreateDto;
-import com.fithub.fithub_api.web.dto.TreinoResponseDto;
 import com.fithub.fithub_api.treino.mapper.TreinoMapper;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

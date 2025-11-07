@@ -1,10 +1,10 @@
 package com.fithub.fithub_api.treino.mapper;
 
 import com.fithub.fithub_api.itemtreino.entity.ItemTreino;
+import com.fithub.fithub_api.treino.dto.ItemTreinoResponseDto;
 import com.fithub.fithub_api.treino.entity.Treino;
-import com.fithub.fithub_api.web.dto.ItemTreinoResponseDto;
 import com.fithub.fithub_api.treino.dto.TreinoCreateDto;
-import com.fithub.fithub_api.web.dto.TreinoResponseDto;
+import com.fithub.fithub_api.treino.dto.TreinoResponseDto;
 import org.modelmapper.ModelMapper;
 
 import java.util.ArrayList;

@@ -5,7 +5,9 @@ import com.fithub.fithub_api.competicao.entity.StatusCompeticao;
 import com.fithub.fithub_api.competicao.repository.CompeticaoRepository;
 import com.fithub.fithub_api.inscricao.entity.Inscricao;
 import com.fithub.fithub_api.inscricao.service.InscricaoService;
+import com.fithub.fithub_api.notificacao.service.NotificacaoService;
 import com.fithub.fithub_api.usuario.entity.Usuario;
+import com.fithub.fithub_api.usuario.repository.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,13 +26,14 @@ public class CompeticaoSchedulerService {
     private static final Logger logger = LoggerFactory.getLogger(CompeticaoSchedulerService.class);
     private final CompeticaoRepository competicaoRepository;
     private final InscricaoService inscricaoService;
+    private final UsuarioRepository usuarioRepository; // 3. Adicione o repositório aqui
+    private final NotificacaoService notificacaoService;
 
     @Scheduled(cron = "0 0 * * * ?")
     @Transactional
     public void verificarEEncerrarCompeticoes() {
         logger.info("Scheduler a correr: Verificando competições para encerrar...");
 
-        // 1. Busca no banco todas as competições que estão ABERTAS e cuja data final JÁ PASSOU
         List<Competicao> competicoesParaEncerrar = competicaoRepository.findAllByStatusAndDataFimBefore(
                 StatusCompeticao.ABERTA,
                 LocalDateTime.now()
@@ -44,21 +47,29 @@ public class CompeticaoSchedulerService {
         for (Competicao competicao : competicoesParaEncerrar) {
             logger.info("A encerrar competição ID #{}: {}", competicao.getId(), competicao.getNome());
 
-            // 3. Obtém o ranking final (o serviço já ordena a lista)
             List<Inscricao> ranking = inscricaoService.buscarInscricoesPorCompeticaoOrdenado(competicao.getId());
 
-            // 4. LÓGICA DE NEGÓCIO PÓS-COMPETIÇÃO
-            // Exemplo 1: Enviar notificação para o vencedor (o primeiro da lista)
-            if (!ranking.isEmpty()) {
+            // --- LÓGICA DE SCORE E NOTIFICAÇÃO ---
+            if (!ranking.isEmpty() && ranking.get(0).getResultado() != null) {
                 Usuario vencedor = ranking.get(0).getUsuario();
-                logger.info("O vencedor da competição '{}' é: {}", competicao.getNome(), vencedor.getUsername());
-                // notificacaoService.enviarNotificacao(vencedor, "Parabéns! Você venceu...");
+
+                // Busca os pontos da  competição
+                int pontosPelaVitoria = competicao.getPontosVitoria();
+
+                vencedor.setScoreTotal(vencedor.getScoreTotal() + pontosPelaVitoria);
+                usuarioRepository.save(vencedor);
+
+                // 6. LÓGICA DE NOTIFICAÇÃO
+                String link = "/portal/competicoes/" + competicao.getId();
+                notificacaoService.criarNotificacao(
+                        vencedor,
+                        "Parabéns! Você venceu a competição '" + competicao.getNome() + "' e ganhou " + pontosPelaVitoria + " pontos!",
+                        link
+                );
             }
 
-            // 5. Atualiza o status da competição para "ENCERRADA"
             competicao.setStatus(StatusCompeticao.ENCERRADA);
             competicaoRepository.save(competicao);
-
             logger.info("Competição ID #{} encerrada com sucesso.", competicao.getId());
         }
     }

@@ -1,4 +1,4 @@
-package com.fithub.fithub_api.web.dto;
+package com.fithub.fithub_api.treino.dto;
 
 import lombok.Getter;
 import lombok.Setter;

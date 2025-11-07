@@ -3,6 +3,7 @@ package com.fithub.fithub_api.usuario.entity;
 import com.fithub.fithub_api.aula.entity.Aula;
 import com.fithub.fithub_api.infraestructure.entity.Auditable;
 import com.fithub.fithub_api.inscricao.entity.Inscricao;
+import com.fithub.fithub_api.notificacao.entity.Notificacao;
 import com.fithub.fithub_api.perfil.entity.Perfil;
 import com.fithub.fithub_api.pessoa.entity.Pessoa;
 import com.fithub.fithub_api.plano.entity.Plano;
@@ -77,6 +78,13 @@ public class Usuario extends Auditable implements Serializable  {
     // Um Usuário pode se increver em varias competicoes
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Inscricao> inscricoes = new HashSet<>();
+
+    // Um Usuário pode ter muitas Notificações
+    @OneToMany(mappedBy = "destinatario", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<Notificacao> notificacoes = new HashSet<>();
+
+    @Column(name = "score_total", nullable = false, columnDefinition = "int default 0")
+    private int scoreTotal = 0;
 
     @Override
     public boolean equals(Object o) {

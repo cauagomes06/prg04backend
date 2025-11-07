@@ -3,6 +3,7 @@ package com.fithub.fithub_api.usuario.service;
 import com.fithub.fithub_api.exception.EntityNotFoundException;
 import com.fithub.fithub_api.exception.PasswordInvalidException;
 import com.fithub.fithub_api.exception.UsernameUniqueViolationException;
+import com.fithub.fithub_api.usuario.dto.UsuarioRankingDto;
 import com.fithub.fithub_api.usuario.entity.Usuario;
 import com.fithub.fithub_api.usuario.repository.UsuarioRepository;
 import com.fithub.fithub_api.usuario.dto.UsuarioCreateDto;
@@ -104,5 +105,22 @@ public class UsuarioService implements  UsuarioIService, UserDetailsService {
     public Usuario buscarPorUsername(String username) {
         return usuarioRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado com email:" + username));
+    }
+
+    @Transactional(readOnly = true)
+    public List<UsuarioRankingDto> getRankingGeral() {
+        //busca os usuarios ordenados
+        List<Usuario> usuariosOrdenados = usuarioRepository.findTop20ByOrderByScoreTotalDesc();
+
+        //  Mapeia para DTOs
+        List<UsuarioRankingDto> rankingDtos = UsuarioMapper.toRankingListDto(usuariosOrdenados);
+
+        //  Adiciona a lógica da Posição (Rank)
+        int posicao = 1;
+        for (UsuarioRankingDto dto : rankingDtos) {
+            dto.setPosicao(posicao++);
+        }
+
+        return rankingDtos;
     }
 }

@@ -2,6 +2,7 @@ package com.fithub.fithub_api.competicao.dto;
 
 import com.fithub.fithub_api.competicao.entity.TipoDeOrdenacao;
 import jakarta.validation.constraints.FutureOrPresent;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
@@ -30,4 +31,8 @@ public class CompeticaoCreateDto {
 
     @NotNull(message = "O tipo de ordenação é obrigatório.")
     private TipoDeOrdenacao tipoOrdenacao;
+
+    @NotNull(message = "A pontuação é obrigatória.")
+    @Min(value = 0, message = "A pontuação não pode ser negativa.")
+    private Integer pontosVitoria;
 }

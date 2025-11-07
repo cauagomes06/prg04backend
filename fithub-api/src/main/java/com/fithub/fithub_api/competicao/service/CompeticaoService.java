@@ -21,6 +21,7 @@ public class CompeticaoService implements CompeticaoIService{
     public Competicao create(Competicao competicao) {
 
         try{
+            competicao.setStatus(StatusCompeticao.ABERTA);
             return competicoRepository.save(competicao);
         }catch (DataIntegrityViolationException ex){
             throw new RuntimeException("ja existe uma competicao com o nome:" +competicao.getNome());
@@ -62,6 +63,7 @@ public class CompeticaoService implements CompeticaoIService{
         competicaoParaEditar.setDescricao(competicaoDadosNovos.getDescricao());
         competicaoParaEditar.setDataInicio(competicaoDadosNovos.getDataInicio());
         competicaoParaEditar.setDataFim(competicaoDadosNovos.getDataFim());
+        competicaoParaEditar.setPontosVitoria(competicaoDadosNovos.getPontosVitoria());
         competicaoParaEditar.setStatus(StatusCompeticao.ABERTA);
 
         //retorna salvando
