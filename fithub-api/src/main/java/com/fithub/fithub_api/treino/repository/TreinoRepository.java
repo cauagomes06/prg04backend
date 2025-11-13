@@ -9,11 +9,13 @@ import java.util.List;
 
 public interface TreinoRepository extends JpaRepository<Treino,Long> {
 
-    List<Treino> findAll();
+    List<Treino> findAllByStatus(StatusTreino status);
 
     List<Treino> findByNome(String nome);
 
     List<Treino> findByCriador(Usuario criador);
 
     List<Treino> findByStatus (StatusTreino status);
+
+    List<Treino> findByCriador_Id(Long id);
 }

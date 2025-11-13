@@ -11,9 +11,12 @@ import com.fithub.fithub_api.usuario.service.UsuarioService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 
 @RequiredArgsConstructor
@@ -48,7 +51,17 @@ public class InscricaoController implements InscricaoIController{
         return ResponseEntity.noContent().build();
     }
 
+    @GetMapping("/usuario")
+    public ResponseEntity<List<InscricaoResponseDto>> getInscricoesDoUsuario(
+            @AuthenticationPrincipal UserDetails userDetails) {
+        // Busca o utilizador logado a partir do token de autenticação
+        Usuario usuarioLogado = getUsuarioLogado(userDetails);
 
+        // Busca as inscrições desse utilizador
+        List<InscricaoResponseDto> inscricoes = inscricaoIService.buscarInscricoesPorUsuario(usuarioLogado);
+
+        return ResponseEntity.ok(inscricoes);
+    }
 
     // --- Método Auxiliar ---
     private Usuario getUsuarioLogado(UserDetails userDetails) {

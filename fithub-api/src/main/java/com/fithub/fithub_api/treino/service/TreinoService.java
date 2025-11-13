@@ -75,8 +75,9 @@ public class TreinoService  implements TreinoIService{
 
     @Override
     @Transactional(readOnly = true)
-    public List<Treino> buscarTodos() {
-        return treinoRepository.findAll();
+    public List<Treino> buscarTodosTreinosPublicos() {
+
+        return treinoRepository.findAllByStatus(StatusTreino.PUBLICADO);
     }
 
     @Override
@@ -108,6 +109,11 @@ public class TreinoService  implements TreinoIService{
         }
 
         return treinoRepository.save(treino);
+    }
+
+    @Override
+    public List<Treino> buscarPorUsuarioId(Long id) {
+        return treinoRepository.findByCriador_Id(id);
     }
 
     @Transactional

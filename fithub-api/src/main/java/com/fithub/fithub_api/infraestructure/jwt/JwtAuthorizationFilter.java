@@ -18,51 +18,56 @@ import java.io.IOException;
 
 @Component
 @RequiredArgsConstructor
-public class JwtAuthorizationFilter extends OncePerRequestFilter {
+public class    JwtAuthorizationFilter extends OncePerRequestFilter {
 
     private final JwtTokenService jwtTokenService;
-    private final UsuarioService usuarioService; // O nosso UserDetailsService
+    private final UsuarioService usuarioService;
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request,
-                                    HttpServletResponse response,
-                                    FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            FilterChain filterChain
+    ) throws ServletException, IOException {
 
-        final String header = request.getHeader("Authorization");
+        final String authHeader = request.getHeader("Authorization");
 
-        String username = null;
-        String jwt = null;
-
-        // 1. Verifica se o cabeçalho existe e se começa com "Bearer "
-        if (header != null && header.startsWith("Bearer ")) {
-            jwt = header.substring(7); // Extrai apenas o token
-            try {
-                username = jwtTokenService.getUsernameFromToken(jwt);
-            } catch (Exception e) {
-                // Token inválido (expirado, assinatura errada, etc.)
-                logger.warn("Não foi possível extrair o username do token JWT.", e);
-            }
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            filterChain.doFilter(request, response);
+            return;
         }
 
-        // 2. Se temos um username e o utilizador ainda não está autenticado
+        // Extrai o token (sem o "Bearer ")
+        final String token = authHeader.substring(7);
+        final String username;
+
+        try {
+            username = jwtTokenService.getUsernameFromToken(token);
+        } catch (Exception e) {
+            // Token inválido ou corrompido
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+        // Se ainda não há autenticação no contexto
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+            UserDetails userDetails = usuarioService.loadUserByUsername(username);
 
-            // Carrega os detalhes do utilizador a partir do banco
-            UserDetails userDetails = this.usuarioService.loadUserByUsername(username);
-
-            // 3. Valida o token (compara com os dados do banco e verifica expiração)
-            if (jwtTokenService.validateToken(jwt, userDetails)) {
-
-                // 4. Cria a autenticação e coloca-a no Contexto de Segurança do Spring
+            // Valida o token
+            if (jwtTokenService.validateToken(token, userDetails)) {
                 UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                        userDetails, null, userDetails.getAuthorities());
+                        userDetails,
+                        null,
+                        userDetails.getAuthorities()
+                );
+                authToken.setDetails(
+                        new WebAuthenticationDetailsSource().buildDetails(request)
+                );
 
-                authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authToken);
             }
         }
 
-        // Continua a cadeia de filtros
         filterChain.doFilter(request, response);
     }
 }

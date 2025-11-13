@@ -5,6 +5,7 @@ import com.fithub.fithub_api.treino.dto.TreinoCreateDto;
 import com.fithub.fithub_api.treino.dto.TreinoResponseDto;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.List;
 
@@ -17,10 +18,13 @@ public interface TreinoIController {
     public ResponseEntity<Void> deletar(Long id,
           UserDetails userDetails);
 
+    public ResponseEntity<TreinoResponseDto> buscarPorId( Long id);
+
+
     public ResponseEntity<TreinoResponseDto> publicar(
             Long id, UserDetails userDetails);
 
-    public ResponseEntity<List<TreinoResponseDto>> buscarTodos();
+    public ResponseEntity<List<TreinoResponseDto>> buscarTodosTreinosPublicos();
 
     public Usuario getUsuarioLogado(UserDetails userDetails);
 

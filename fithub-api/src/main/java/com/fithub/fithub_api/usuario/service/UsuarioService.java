@@ -1,5 +1,6 @@
 package com.fithub.fithub_api.usuario.service;
 
+import com.fithub.fithub_api.aula.dto.InstrutorResponseDto;
 import com.fithub.fithub_api.exception.EntityNotFoundException;
 import com.fithub.fithub_api.exception.PasswordInvalidException;
 import com.fithub.fithub_api.exception.UsernameUniqueViolationException;
@@ -120,7 +121,13 @@ public class UsuarioService implements  UsuarioIService, UserDetailsService {
         for (UsuarioRankingDto dto : rankingDtos) {
             dto.setPosicao(posicao++);
         }
-
         return rankingDtos;
+    }
+
+    @Override
+    public List<InstrutorResponseDto> buscarInstrutores() {
+        // "INSTRUTOR" deve ser o nome exato do seu perfil no banco de dados.
+        List<Usuario> instrutores = usuarioRepository.findAllByPerfilNome("ROLE_PERSONAL");
+        return UsuarioMapper.toListInstrutorDto(instrutores);
     }
 }

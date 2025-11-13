@@ -1,5 +1,6 @@
 package com.fithub.fithub_api.usuario.mapper;
 
+import com.fithub.fithub_api.aula.dto.InstrutorResponseDto;
 import com.fithub.fithub_api.exception.EntityNotFoundException;
 import com.fithub.fithub_api.perfil.repository.PerfilRepository;
 import com.fithub.fithub_api.pessoa.entity.Pessoa;
@@ -26,7 +27,7 @@ public class UsuarioMapper {
     private final PlanoRepository planoRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public Usuario toUsuario(UsuarioCreateDto createDto) {
+    public  Usuario toUsuario(UsuarioCreateDto createDto) {
         // Mapeia os campos simples primeiro
         Usuario usuario = modelMapper.map(createDto, Usuario.class);
 
@@ -54,20 +55,30 @@ public class UsuarioMapper {
                 return null;
             }
 
-            // Mapeia os dados da Pessoa
-            PessoaResponseDto pessoaDto = new PessoaResponseDto();
-            pessoaDto.setNomeCompleto(usuario.getPessoa().getNomeCompleto());
-            pessoaDto.setTelefone(usuario.getPessoa().getTelefone());
-
-            // Mapeia os dados principais do Usuario
             UsuarioResponseDto responseDto = new UsuarioResponseDto();
             responseDto.setId(usuario.getId());
             responseDto.setUsername(usuario.getUsername());
-            responseDto.setPessoa(pessoaDto);
+            responseDto.setScoreTotal(usuario.getScoreTotal());
+            responseDto.setDataCriacao(usuario.getDataCriacao());
 
-            // Pega APENAS o nome do Plano e do Perfil
-            responseDto.setNomePlano(usuario.getPlano().getNome());
-            responseDto.setNomePerfil(usuario.getPerfil().getNome());
+            // Verificação de segurança para Pessoa
+            if (usuario.getPessoa() != null) {
+                PessoaResponseDto pessoaDto = new PessoaResponseDto();
+                pessoaDto.setNomeCompleto(usuario.getPessoa().getNomeCompleto());
+                pessoaDto.setTelefone(usuario.getPessoa().getTelefone());
+                responseDto.setPessoa(pessoaDto);
+            }
+
+            // Verificação de segurança para Plano
+            if (usuario.getPlano() != null) {
+                responseDto.setNomePlano(usuario.getPlano().getNome());
+                responseDto.setPlanoId(usuario.getPlano().getId());
+            }
+
+            // Verificação de segurança para Perfil
+            if (usuario.getPerfil() != null) {
+                responseDto.setNomePerfil(usuario.getPerfil().getNome());
+            }
 
             return responseDto;
         }
@@ -94,6 +105,31 @@ public class UsuarioMapper {
     public static List<UsuarioRankingDto> toRankingListDto(List<Usuario> usuarios) {
         return usuarios.stream()
                 .map(UsuarioMapper::toRankingDto)
+                .collect(Collectors.toList());
+    }
+
+    public static InstrutorResponseDto toInstrutorDto(Usuario usuario) {
+        if (usuario == null) {
+            return null;
+        }
+
+        InstrutorResponseDto dto = new InstrutorResponseDto();
+        dto.setId(usuario.getId());
+
+        if (usuario.getPessoa() != null) {
+            dto.setNomeCompleto(usuario.getPessoa().getNomeCompleto());
+
+        } else {
+            dto.setNomeCompleto("Instrutor (Pendente)");
+        }
+
+        return dto;
+    }
+
+    //
+    public static List<InstrutorResponseDto> toListInstrutorDto(List<Usuario> usuarios) {
+        return usuarios.stream()
+                .map(UsuarioMapper::toInstrutorDto)
                 .collect(Collectors.toList());
     }
 }

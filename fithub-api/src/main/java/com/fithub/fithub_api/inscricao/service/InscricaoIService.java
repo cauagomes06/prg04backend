@@ -1,5 +1,6 @@
 package com.fithub.fithub_api.inscricao.service;
 
+import com.fithub.fithub_api.inscricao.dto.InscricaoResponseDto;
 import com.fithub.fithub_api.inscricao.dto.ResultadoSubmitDto;
 import com.fithub.fithub_api.inscricao.entity.Inscricao;
 import com.fithub.fithub_api.usuario.entity.Usuario;
@@ -13,6 +14,8 @@ public interface InscricaoIService {
      Inscricao enviarResultado(Long idInscricao, ResultadoSubmitDto dto, Usuario usuarioLogado);
 
      void cancelarInscricao(Long idInscricao, Usuario usuarioLogado);
+
+     List<InscricaoResponseDto> buscarInscricoesPorUsuario(Usuario usuario);
 
      List<Inscricao> buscarInscricoesPorCompeticaoOrdenado(Long idCompeticao);
 }

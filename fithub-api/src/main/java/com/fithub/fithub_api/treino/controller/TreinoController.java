@@ -45,7 +45,12 @@ public class TreinoController implements TreinoIController{
 
          return ResponseEntity.status(HttpStatus.OK).body(TreinoMapper.toDto(treinoAtualizado));
     }
+    @GetMapping("/{id}")
+    public ResponseEntity<TreinoResponseDto> buscarPorId(@PathVariable Long id){
 
+        Treino treino =  treinoService.buscarTreinoPorId(id);
+        return ResponseEntity.ok().body(TreinoMapper.toDto(treino));
+    }
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<Void> deletar(
             @PathVariable Long id,
@@ -56,9 +61,9 @@ public class TreinoController implements TreinoIController{
         return ResponseEntity.noContent().build();
     }
     @GetMapping("/buscar")
-     public ResponseEntity<List<TreinoResponseDto>> buscarTodos(){
+     public ResponseEntity<List<TreinoResponseDto>> buscarTodosTreinosPublicos(){
 
-       List<Treino> treinos =  treinoService.buscarTodos();
+       List<Treino> treinos =  treinoService.buscarTodosTreinosPublicos()   ;
         return ResponseEntity.ok().body(TreinoMapper.toListDto(treinos));
      }
 
@@ -72,6 +77,12 @@ public class TreinoController implements TreinoIController{
             return ResponseEntity.ok(TreinoMapper.toDto(treinoPublicado));
         }
 
+    @GetMapping("/usuario/{id}")
+    public ResponseEntity<List<TreinoResponseDto>> buscarTreinosUsuario(@PathVariable Long id){
+
+        List<Treino> treinos =  treinoService.buscarPorUsuarioId(id);
+        return ResponseEntity.ok().body(TreinoMapper.toListDto(treinos));
+    }
 
         public Usuario getUsuarioLogado(UserDetails userDetails) {
 

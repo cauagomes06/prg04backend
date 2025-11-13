@@ -1,5 +1,6 @@
 package com.fithub.fithub_api.usuario.service;
 
+import com.fithub.fithub_api.aula.dto.InstrutorResponseDto;
 import com.fithub.fithub_api.usuario.entity.Usuario;
 
 import com.fithub.fithub_api.usuario.dto.UsuarioCreateDto;
@@ -18,5 +19,9 @@ public interface UsuarioIService {
     List<Usuario> buscarTodos();
 
     void delete(long id);
+
+    Usuario buscarPorUsername(String username);
+
+    List<InstrutorResponseDto> buscarInstrutores();
 
 }

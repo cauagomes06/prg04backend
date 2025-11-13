@@ -31,7 +31,7 @@ public class PlanoController implements PlanoIController{
     }
 
     @Override
-    @GetMapping
+    @GetMapping("/buscar")
     public ResponseEntity<List<PlanoResponseDto>> listarPlanos() {
 
         List<Plano> listPlano = planoService.buscarPlanos();

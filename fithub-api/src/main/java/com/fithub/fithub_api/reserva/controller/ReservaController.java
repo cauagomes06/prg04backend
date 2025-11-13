@@ -22,7 +22,7 @@ public class ReservaController implements ReservaIController{
     private final ReservaService reservaService;
     private final UsuarioService usuarioService;
 
-    @GetMapping("/minhas")
+    @GetMapping("/usuario")
     public ResponseEntity<List<ReservaResponseDto>> listaReservas(
             @AuthenticationPrincipal UserDetails userDetails) {
 

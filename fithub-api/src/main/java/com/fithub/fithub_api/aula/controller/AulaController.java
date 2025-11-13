@@ -1,6 +1,7 @@
 package com.fithub.fithub_api.aula.controller;
 
 
+import com.fithub.fithub_api.aula.dto.InstrutorResponseDto;
 import com.fithub.fithub_api.aula.entity.Aula;
 import com.fithub.fithub_api.aula.mapper.AulaMapper;
 import com.fithub.fithub_api.aula.service.AulaService;
@@ -91,7 +92,11 @@ public class AulaController implements AulaIController {
         return ResponseEntity.status(HttpStatus.CREATED).body(ReservaMapper.toDto(novaReserva));
     }
 
-
+    @GetMapping("/instrutores")
+    public ResponseEntity<List<InstrutorResponseDto>> getInstrutores() {
+        List<InstrutorResponseDto> instrutores = usuarioService.buscarInstrutores();
+        return ResponseEntity.ok(instrutores);
+    }
 
     private Usuario getUsuarioLogado(UserDetails userDetails) {
         if (userDetails == null) {

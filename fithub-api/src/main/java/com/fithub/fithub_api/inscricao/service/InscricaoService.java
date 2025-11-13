@@ -6,8 +6,10 @@ import com.fithub.fithub_api.competicao.entity.TipoDeOrdenacao;
 import com.fithub.fithub_api.competicao.service.CompeticaoIService;
 import com.fithub.fithub_api.exception.EntityNotFoundException;
 import com.fithub.fithub_api.exception.InscricaoConflictException;
+import com.fithub.fithub_api.inscricao.dto.InscricaoResponseDto;
 import com.fithub.fithub_api.inscricao.dto.ResultadoSubmitDto;
 import com.fithub.fithub_api.inscricao.entity.Inscricao;
+import com.fithub.fithub_api.inscricao.mapper.InscricaoMapper;
 import com.fithub.fithub_api.inscricao.repository.InscricaoRepository;
 import com.fithub.fithub_api.usuario.entity.Usuario;
 import lombok.RequiredArgsConstructor;
@@ -93,6 +95,14 @@ public class InscricaoService implements InscricaoIService {
         }
 
         inscricaoRepository.delete(inscricao);
+    }
+
+    @Override
+    public List<InscricaoResponseDto> buscarInscricoesPorUsuario(Usuario usuario) {
+        List<Inscricao> inscricoes = inscricaoRepository.findAllByUsuarioId(usuario.getId());
+
+        // O seu InscricaoMapper já tem o método 'toListDto'
+        return InscricaoMapper.toListDto(inscricoes);
     }
 
     @Override

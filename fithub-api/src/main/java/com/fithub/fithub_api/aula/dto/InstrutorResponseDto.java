@@ -7,5 +7,6 @@ import lombok.Setter;
 @Setter
 public class InstrutorResponseDto {
 
+    private Long id;
     private String nomeCompleto;
 }

@@ -12,7 +12,7 @@ public interface InscricaoRepository extends JpaRepository<Inscricao, Long> {
     boolean existsByUsuarioIdAndCompeticaoId(Long usuarioId, Long competicaoId);
 
     // Busca todas as inscrições de um usuario
-    List<Inscricao> findByUsuarioId(Long usuarioId);
+    List<Inscricao> findAllByUsuarioId(Long usuarioId);
 
     // Busca uma inscrição específica de um usuario numa competição
     Optional<Inscricao> findByUsuarioIdAndCompeticaoId(Long usuarioId, Long competicaoId);

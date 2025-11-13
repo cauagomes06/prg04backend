@@ -16,7 +16,8 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration; // 1. IMPORTE
 import org.springframework.web.cors.CorsConfigurationSource; // 2. IMPORTE
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource; // 3. IMPORTE
-import java.util.Arrays; // 4. IMPORTE
+import java.util.Arrays; 
+import java.util.List;
 
 @Configuration
 @EnableWebSecurity
@@ -45,9 +46,6 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/planos").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/usuarios/ranking").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/exercicios").permitAll() // Para o catálogo de exercícios
-
-                        // Permite todos os endpoints /api/** para testes (como tínhamos)
-                        .requestMatchers("/api/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthorizationFilter, UsernamePasswordAuthenticationFilter.class)
@@ -71,7 +69,7 @@ public class SecurityConfig {
         configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "x-auth-token"));
 
         // Expõe cabeçalhos (se necessário, ex: para o token)
-        configuration.setExposedHeaders(Arrays.asList("x-auth-token"));
+        configuration.setExposedHeaders(List.of("x-auth-token"));
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         // Aplica esta configuração a todas as rotas da sua API
