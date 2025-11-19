@@ -60,7 +60,7 @@ public class CompeticaoController implements CompeticaoIController{
     @Override
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<Void> deletarCompeticao(@PathVariable Long id) {
-            competicoService.deletarCompeticao(id);
+            competicoService.deletar(id);
         return ResponseEntity.noContent().build();
     }
 
@@ -75,7 +75,7 @@ public class CompeticaoController implements CompeticaoIController{
     }
 
     @PostMapping("/{id}/inscrever")
-    public ResponseEntity<InscricaoResponseDto> iscrever(@PathVariable Long id,
+    public ResponseEntity<InscricaoResponseDto> inscrever(@PathVariable Long id,
                                                          @AuthenticationPrincipal UserDetails userDetails) {
 
         Usuario usuarioLogado = getUsuarioLogado(userDetails);
@@ -105,4 +105,16 @@ public class CompeticaoController implements CompeticaoIController{
         }
         return usuarioService.buscarPorUsername(userDetails.getUsername());
     }
+
+    @PatchMapping("/{id}/status")
+    public ResponseEntity<Void> atualizarStatus(
+            @PathVariable Long id,
+            @RequestParam("status") String novoStatus) {
+
+        // Chama o serviço passando o ID e o status (convertendo string para Enum se necessário)
+        competicoService.atualizarStatus(id, novoStatus);
+        return ResponseEntity.noContent().build();
+    }
+
+
 }

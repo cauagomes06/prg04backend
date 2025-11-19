@@ -16,4 +16,5 @@ public class InscricaoResponseDto {
     private String nomeUsuario;
     private String resultado;
     private LocalDateTime dataSubmissao;
+    private String competicaoNome;
 }

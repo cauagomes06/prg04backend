@@ -33,6 +33,7 @@ public class TreinoMapper {
                 itensDto.add(itemDto);
             }
 
+            treinoResponseDto.setCriadorNome(treino.getCriador().getPessoa().getNomeCompleto());
             treinoResponseDto.setItems(itensDto);
         }else{
             treinoResponseDto.setItems(new ArrayList<>()); // para lista nao ficar nula

@@ -2,6 +2,7 @@ package com.fithub.fithub_api.plano.controller;
 
 import com.fithub.fithub_api.plano.dto.PlanoCreateDto;
 import com.fithub.fithub_api.plano.dto.PlanoResponseDto;
+import com.fithub.fithub_api.plano.dto.PlanoTrocaDto;
 import com.fithub.fithub_api.plano.dto.PlanoUpdateDto;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
@@ -13,7 +14,7 @@ import java.util.List;
 public interface PlanoIController {
 
 
-    public ResponseEntity<PlanoResponseDto> registrarPlano(@RequestBody PlanoCreateDto planoCreateDto);
+    public ResponseEntity<PlanoResponseDto> registrarPlano(PlanoCreateDto planoCreateDto);
 
     public ResponseEntity<Void> deletePlano(Long id);
 
@@ -21,5 +22,7 @@ public interface PlanoIController {
 
     public ResponseEntity<PlanoResponseDto> buscarPlanoByid(Long id);
 
-    public ResponseEntity<PlanoResponseDto> editarPlano(@PathVariable Long id,@RequestBody @Valid PlanoUpdateDto updateDto);
+    public ResponseEntity<PlanoResponseDto> editarPlano(Long id,PlanoUpdateDto updateDto);
+
+    public ResponseEntity<Void> mudarPlano( Long usuarioId, PlanoTrocaDto dto);
     }

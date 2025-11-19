@@ -13,5 +13,6 @@ public class TreinoResponseDto {
     private String nome;
     private String descricao;
     private String status;
+    private String criadorNome;
     private List<ItemTreinoResponseDto> items;
 }

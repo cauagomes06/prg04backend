@@ -10,4 +10,5 @@ import java.util.List;
 public interface CompeticaoRepository extends JpaRepository<Competicao, Long> {
 
     List<Competicao> findAllByStatusAndDataFimBefore(StatusCompeticao status, LocalDateTime dataAtual);
+    List<Competicao> findByStatusInAndDataFimBefore(List<StatusCompeticao> status, LocalDateTime dataFim);
 }

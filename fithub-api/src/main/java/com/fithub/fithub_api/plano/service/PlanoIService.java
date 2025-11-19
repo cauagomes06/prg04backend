@@ -19,5 +19,7 @@ public interface  PlanoIService {
 
     void deletePlano(Long id);
 
+    void mudarPlanoDoUsuario(Long usuarioId, Long novoPlanoId);
+
    PlanoResponseDto editarPlano(@PathVariable Long id, @RequestBody PlanoUpdateDto updateDto);
 }

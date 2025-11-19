@@ -15,8 +15,8 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Getter
 @Setter
-@Table(name = "incricoes_competicoes",
-        uniqueConstraints = @UniqueConstraint(columnNames = {"usuario_id","competicoes_id"})) //usuario so pode se increver uma vez na mesma competicao
+@Table(name = "inscricoes_competicoes",
+        uniqueConstraints = @UniqueConstraint(columnNames = {"usuario_id","competicao_id"})) //usuario so pode se increver uma vez na mesma competicao
 public class Inscricao extends Auditable implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

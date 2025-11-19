@@ -15,8 +15,8 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
 
 @Service
@@ -26,51 +26,79 @@ public class CompeticaoSchedulerService {
     private static final Logger logger = LoggerFactory.getLogger(CompeticaoSchedulerService.class);
     private final CompeticaoRepository competicaoRepository;
     private final InscricaoService inscricaoService;
-    private final UsuarioRepository usuarioRepository; // 3. Adicione o repositório aqui
+    private final UsuarioRepository usuarioRepository;
     private final NotificacaoService notificacaoService;
 
-    @Scheduled(cron = "0 0 * * * ?")
+    // Executa a cada minuto (para testes é melhor que hora a hora)
+    // cron = "0 * * * * ?" -> A cada minuto
+    @Scheduled(cron = "0 * * * * ?")
     @Transactional
     public void verificarEEncerrarCompeticoes() {
         logger.info("Scheduler a correr: Verificando competições para encerrar...");
 
-        List<Competicao> competicoesParaEncerrar = competicaoRepository.findAllByStatusAndDataFimBefore(
+        // Procura por ABERTA ou EM_ANDAMENTO
+        List<StatusCompeticao> statusAtivos = Arrays.asList(
                 StatusCompeticao.ABERTA,
+                StatusCompeticao.EM_ANDAMENTO
+        );
+
+        List<Competicao> competicoesParaEncerrar = competicaoRepository.findByStatusInAndDataFimBefore(
+                statusAtivos,
                 LocalDateTime.now()
         );
 
         if (competicoesParaEncerrar.isEmpty()) {
-            logger.info("Nenhuma competição para encerrar.");
+            logger.info("Nenhuma competição pendente para encerrar.");
             return;
         }
 
         for (Competicao competicao : competicoesParaEncerrar) {
             logger.info("A encerrar competição ID #{}: {}", competicao.getId(), competicao.getNome());
 
+            // Busca ranking ordenado
             List<Inscricao> ranking = inscricaoService.buscarInscricoesPorCompeticaoOrdenado(competicao.getId());
 
-            // --- LÓGICA DE SCORE E NOTIFICAÇÃO ---
-            if (!ranking.isEmpty() && ranking.get(0).getResultado() != null) {
-                Usuario vencedor = ranking.get(0).getUsuario();
+            // Verifica se há inscritos e se o primeiro lugar tem resultado
+            if (!ranking.isEmpty()) {
+                Inscricao vencedorInscricao = ranking.get(0);
 
-                // Busca os pontos da  competição
-                int pontosPelaVitoria = competicao.getPontosVitoria();
+                if (vencedorInscricao.getResultado() != null) {
+                    Usuario vencedor = vencedorInscricao.getUsuario();
+                    int pontosPelaVitoria = competicao.getPontosVitoria();
 
-                vencedor.setScoreTotal(vencedor.getScoreTotal() + pontosPelaVitoria);
-                usuarioRepository.save(vencedor);
+                    // Atualiza pontos
+                    logger.info("Vencedor encontrado: {}. Adicionando {} pontos.", vencedor.getPessoa().getNomeCompleto(), pontosPelaVitoria);
 
-                // 6. LÓGICA DE NOTIFICAÇÃO
-                String link = "/portal/competicoes/" + competicao.getId();
-                notificacaoService.criarNotificacao(
-                        vencedor,
-                        "Parabéns! Você venceu a competição '" + competicao.getNome() + "' e ganhou " + pontosPelaVitoria + " pontos!",
-                        link
-                );
+                    // --- CORREÇÃO AQUI ---
+                    // Usamos Integer para permitir que aceite null (se for Wrapper) ou faça autoboxing (se for primitivo)
+                    Integer scoreTotalObj = vencedor.getScoreTotal();
+                    int scoreAtual = (scoreTotalObj == null) ? 0 : scoreTotalObj;
+
+                    vencedor.setScoreTotal(scoreAtual + pontosPelaVitoria);
+
+                    usuarioRepository.save(vencedor);
+
+                    // Envia Notificação
+                    try {
+                        String link = "/portal/competicoes";
+                        notificacaoService.criarNotificacao(
+                                vencedor,
+                                "Parabéns! Venceu a competição '" + competicao.getNome() + "' e ganhou " + pontosPelaVitoria + " pontos!",
+                                link
+                        );
+                    } catch (Exception e) {
+                        logger.error("Erro ao enviar notificação para vencedor: ", e);
+                    }
+                } else {
+                    logger.warn("Competição ID #{} tem inscritos, mas o líder não submeteu resultado.", competicao.getId());
+                }
+            } else {
+                logger.info("Competição ID #{} encerrada sem participantes.", competicao.getId());
             }
 
+            // Atualiza status para ENCERRADA
             competicao.setStatus(StatusCompeticao.ENCERRADA);
             competicaoRepository.save(competicao);
-            logger.info("Competição ID #{} encerrada com sucesso.", competicao.getId());
         }
     }
 }

@@ -43,7 +43,7 @@ public class ExercicioService implements ExercicioIService {
 
       Exercicio exercicio =  buscarPorId(id);
 
-      if (itemTreinoRepository.existsById(exercicio.getId())) {
+      if (itemTreinoRepository.existsByExercicioId(exercicio.getId())) {
           throw new IllegalStateException("ainda existem treinos com este exercicio");
       }
       exercicoRepository.delete(exercicio);

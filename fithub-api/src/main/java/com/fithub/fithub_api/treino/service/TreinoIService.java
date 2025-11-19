@@ -18,7 +18,11 @@ public interface TreinoIService {
 
     public List<Treino> buscarTodosTreinosPublicos();
 
+    public Treino clonarTreino(Long treinoId, Usuario usuarioLogado);
+
     public Treino editarTreino(TreinoCreateDto dto, Usuario usuarioLogado, Long id);
 
     List<Treino> buscarPorUsuarioId(Long id);
+
+    List<Treino> buscarTodos();
 }

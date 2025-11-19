@@ -8,7 +8,7 @@ import java.util.List;
 
 @Getter
 @Setter
-public class TreinoCreateDto {
+public class    TreinoCreateDto {
 
     private String nome;
     private String descricao;

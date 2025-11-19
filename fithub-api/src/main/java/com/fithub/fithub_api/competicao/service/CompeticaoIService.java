@@ -12,7 +12,9 @@ public interface CompeticaoIService {
 
     Competicao buscarPorId(Long id);
 
-    void deletarCompeticao(Long id);
+    void deletar(Long id);
 
     Competicao editarCompeticao(Competicao competicao,Long id);
+
+    void atualizarStatus(Long id, String novoStatus);
 }

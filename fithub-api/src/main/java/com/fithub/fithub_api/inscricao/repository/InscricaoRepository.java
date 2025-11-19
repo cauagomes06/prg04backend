@@ -14,9 +14,12 @@ public interface InscricaoRepository extends JpaRepository<Inscricao, Long> {
     // Busca todas as inscrições de um usuario
     List<Inscricao> findAllByUsuarioId(Long usuarioId);
 
+
     // Busca uma inscrição específica de um usuario numa competição
     Optional<Inscricao> findByUsuarioIdAndCompeticaoId(Long usuarioId, Long competicaoId);
 
     // Busca todas as inscrições de uma competição
     List<Inscricao> findByCompeticaoId(Long competicaoId);
+
+    void deleteByCompeticaoId(Long competicaoId);
 }

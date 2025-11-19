@@ -5,7 +5,8 @@ import com.fithub.fithub_api.competicao.dto.CompeticaoResponseDto;
 import com.fithub.fithub_api.inscricao.dto.InscricaoResponseDto;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
-
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
 
 
 import java.util.List;
@@ -24,5 +25,7 @@ public interface CompeticaoIController {
 
     ResponseEntity<List<InscricaoResponseDto>> getRankingDaCompeticao(Long id);
 
-    ResponseEntity<InscricaoResponseDto> iscrever(Long id, UserDetails userDetails);
+    public ResponseEntity<Void> atualizarStatus(Long id, String novoStatus);
+
+    ResponseEntity<InscricaoResponseDto> inscrever(Long id, UserDetails userDetails);
 }

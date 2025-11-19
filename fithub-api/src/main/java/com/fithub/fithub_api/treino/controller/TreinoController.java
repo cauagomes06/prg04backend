@@ -66,17 +66,34 @@ public class TreinoController implements TreinoIController{
        List<Treino> treinos =  treinoService.buscarTodosTreinosPublicos()   ;
         return ResponseEntity.ok().body(TreinoMapper.toListDto(treinos));
      }
+    @GetMapping
+    public ResponseEntity<List<TreinoResponseDto>> buscarTodosTreinos(){
 
-        @PatchMapping("/publicar/{id}")
-        public ResponseEntity<TreinoResponseDto> publicar(
-                @PathVariable Long id,
-                @AuthenticationPrincipal UserDetails userDetails) {
+        List<Treino> treinos =  treinoService.buscarTodos()   ;
+        return ResponseEntity.ok().body(TreinoMapper.toListDto(treinos));
+    }
 
-            Usuario usuarioLogado = getUsuarioLogado(userDetails);
-            Treino treinoPublicado = treinoService.publicarTreino(id, usuarioLogado);
-            return ResponseEntity.ok(TreinoMapper.toDto(treinoPublicado));
-        }
+            @PatchMapping("/{id}/publicar")
+            public ResponseEntity<TreinoResponseDto> publicar(
+                    @PathVariable Long id,
+                    @AuthenticationPrincipal UserDetails userDetails) {
 
+                Usuario usuarioLogado = getUsuarioLogado(userDetails);
+                Treino treinoPublicado = treinoService.publicarTreino(id, usuarioLogado);
+                return ResponseEntity.ok(TreinoMapper.toDto(treinoPublicado));
+            }
+
+    @PostMapping("/{id}/clonar")
+    public ResponseEntity<TreinoResponseDto> clonarTreino(
+            @PathVariable Long id,
+            @AuthenticationPrincipal UserDetails userDetails) {
+
+        Usuario usuarioLogado = usuarioService.buscarPorUsername(userDetails.getUsername());
+
+        Treino novoTreino = treinoService.clonarTreino(id, usuarioLogado);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(TreinoMapper.toDto(novoTreino));
+    }
     @GetMapping("/usuario/{id}")
     public ResponseEntity<List<TreinoResponseDto>> buscarTreinosUsuario(@PathVariable Long id){
 

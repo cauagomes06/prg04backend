@@ -1,8 +1,10 @@
 package com.fithub.fithub_api.plano.service;
 
+import com.fithub.fithub_api.exception.EntityNotFoundException;
 import com.fithub.fithub_api.exception.PlanoUniqueViolationException;
 import com.fithub.fithub_api.plano.entity.Plano;
 import com.fithub.fithub_api.plano.repository.PlanoRepository;
+import com.fithub.fithub_api.usuario.entity.Usuario;
 import com.fithub.fithub_api.usuario.repository.UsuarioRepository;
 import com.fithub.fithub_api.plano.dto.PlanoResponseDto;
 import com.fithub.fithub_api.plano.dto.PlanoUpdateDto;
@@ -72,5 +74,22 @@ public class PlanoService implements PlanoIService {
        return PlanoMapper.toPlanoDto(planoExistente);
     }
 
+    @Override
+    @Transactional
+    public void mudarPlanoDoUsuario(Long usuarioId, Long novoPlanoId) {
+        // Busca o usuário
+        Usuario usuario = usuarioRepository.findById(usuarioId)
+                .orElseThrow(() -> new EntityNotFoundException("Usuário não encontrado"));
+
+        // Busca o novo plano
+        Plano novoPlano = planoRepository.findById(novoPlanoId)
+                .orElseThrow(() -> new EntityNotFoundException("Plano não encontrado"));
+
+        // Atualiza o plano do usuário
+        usuario.setPlano(novoPlano);
+
+        // Salva a alteração
+        usuarioRepository.save(usuario);
+    }
 
 }

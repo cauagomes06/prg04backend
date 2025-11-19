@@ -1,6 +1,7 @@
 package com.fithub.fithub_api.plano.controller;
 
 
+import com.fithub.fithub_api.plano.dto.PlanoTrocaDto;
 import com.fithub.fithub_api.plano.entity.Plano;
 import com.fithub.fithub_api.plano.service.PlanoService;
 import com.fithub.fithub_api.plano.dto.PlanoCreateDto;
@@ -24,7 +25,7 @@ public class PlanoController implements PlanoIController{
 
     @Override
     @PostMapping("/register")
-    public ResponseEntity<PlanoResponseDto> registrarPlano(PlanoCreateDto planoCreateDto) {
+    public ResponseEntity<PlanoResponseDto> registrarPlano(@RequestBody @Valid PlanoCreateDto planoCreateDto) {
         Plano novoPlano = planoService.registrarPlano(PlanoMapper.toPlano(planoCreateDto));
 
         return ResponseEntity.status(HttpStatus.CREATED).body(PlanoMapper.toPlanoDto(novoPlano));
@@ -58,6 +59,15 @@ public class PlanoController implements PlanoIController{
 
         PlanoResponseDto planoAtulizado =  planoService.editarPlano(id,updateDto);
         return ResponseEntity.ok(planoAtulizado);
+    }
+    @PatchMapping("/mudar/{usuarioId}")
+    public ResponseEntity<Void> mudarPlano(
+            @PathVariable Long usuarioId,
+            @RequestBody @Valid PlanoTrocaDto dto) {
+
+        planoService.mudarPlanoDoUsuario(usuarioId, dto.getNovoPlanoId());
+
+        return ResponseEntity.noContent().build();
     }
 
 }
