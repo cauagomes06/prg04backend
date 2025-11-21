@@ -8,18 +8,23 @@ import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 
 public interface UsuarioIController {
 
-    public ResponseEntity<UsuarioResponseDto> registrarUsuario(@Valid @RequestBody UsuarioCreateDto createDto);
+    public ResponseEntity<UsuarioResponseDto> registrarUsuario(UsuarioCreateDto createDto);
 
-    public ResponseEntity<Void> updateSenha(@PathVariable Long id , @Valid @RequestBody UsuarioSenhaDto senhaDto);
+    public ResponseEntity<Void> updateSenha( Long id , UsuarioSenhaDto senhaDto);
 
-    public ResponseEntity<UsuarioResponseDto> buscarPorId(@PathVariable long id);
+    public ResponseEntity<List<UsuarioResponseDto>> buscaTodos();
 
-    public ResponseEntity<UsuarioResponseDto> deleteUsuario(@PathVariable long id);
+    public ResponseEntity<UsuarioResponseDto> buscarPorId( Long id);
+
+    public ResponseEntity<UsuarioResponseDto> deleteUsuario( Long id);
 
     public ResponseEntity<List<UsuarioRankingDto>> getRankingGeral();
+
+    public ResponseEntity<Void> atualizarPerfil( Long id, Long novoPerfilId);
 }

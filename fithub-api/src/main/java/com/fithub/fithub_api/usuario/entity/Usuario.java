@@ -43,6 +43,9 @@ public class Usuario extends Auditable implements Serializable  {
     @JoinColumn(name = "pessoa_id", referencedColumnName = "id", unique = true)
     private Pessoa pessoa;
 
+    @Column(name = "foto_url")
+    private String fotoUrl;
+
     //relacionamentos de perfil e plano
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "perfil_id",nullable = false)

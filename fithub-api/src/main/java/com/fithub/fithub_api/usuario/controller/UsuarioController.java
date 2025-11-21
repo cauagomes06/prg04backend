@@ -20,6 +20,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RequiredArgsConstructor
 @RestController
@@ -38,14 +39,22 @@ public class UsuarioController implements UsuarioIController {
         return ResponseEntity.status(HttpStatus.CREATED).body(usuarioMapper.toDto(usuarioSalvo));
     }
 
+    @GetMapping
+    public ResponseEntity<List<UsuarioResponseDto>> buscaTodos(){
+
+        List<Usuario> usuarios = usuarioService.buscarTodos();
+
+        return  ResponseEntity.ok(usuarioMapper.toListDto(usuarios));
+    }
+
     @GetMapping("/{id}")
-    public ResponseEntity<UsuarioResponseDto> buscarPorId(@PathVariable long id) {
+    public ResponseEntity<UsuarioResponseDto> buscarPorId(@PathVariable Long id) {
 
         Usuario user = usuarioService.buscarPorId(id);
         return ResponseEntity.ok(usuarioMapper.toDto(user));
     }
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<UsuarioResponseDto> deleteUsuario(@PathVariable long id) {
+    public ResponseEntity<UsuarioResponseDto> deleteUsuario(@PathVariable Long id) {
         usuarioService.delete(id);
         return ResponseEntity.noContent().build();
     }
@@ -59,13 +68,6 @@ public class UsuarioController implements UsuarioIController {
 
     }
 
-    @GetMapping
-    public ResponseEntity<List<UsuarioResponseDto>> buscaTodos(){
-
-        List<Usuario> usuarios = usuarioService.buscarTodos();
-
-        return  ResponseEntity.ok(usuarioMapper.toListDto(usuarios));
-    }
 
     @GetMapping("/ranking")
     public ResponseEntity<List<UsuarioRankingDto>> getRankingGeral() {
@@ -89,6 +91,31 @@ public class UsuarioController implements UsuarioIController {
         return ResponseEntity.ok(usuarioMapper.toDto(usuarioLogado));
     }
 
+    @PatchMapping("/me/foto")
+    public ResponseEntity<Void> atualizarFotoPerfil(
+            @RequestBody Map<String, String> payload, // Espera JSON { "fotoUrl": "..." }
+            @AuthenticationPrincipal UserDetails userDetails) {
+
+        String novaUrl = payload.get("fotoUrl");
+
+        Usuario usuario = usuarioService.buscarPorUsername(userDetails.getUsername());
+        usuario.setFotoUrl(novaUrl);
+
+
+        usuarioService.atualizarFoto(usuario.getId(), novaUrl);
+
+        return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/{id}/alterar-perfil")
+    public ResponseEntity<Void> atualizarPerfil(
+            @PathVariable Long id,
+            @RequestParam Long novoPerfilId) {
+
+        usuarioService.alterarPerfilUsuario(id, novoPerfilId);
+
+        return ResponseEntity.noContent().build();
+    }
     @GetMapping("/me")
     public ResponseEntity<UsuarioResponseDto> getUsuarioLogado(@AuthenticationPrincipal UserDetails userDetails) {
         if (userDetails == null) {

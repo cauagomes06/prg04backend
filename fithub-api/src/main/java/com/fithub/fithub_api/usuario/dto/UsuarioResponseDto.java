@@ -24,4 +24,6 @@ public class UsuarioResponseDto {
 
     private Integer scoreTotal;
     private LocalDateTime dataCriacao;
+
+    private String fotoUrl;
 }

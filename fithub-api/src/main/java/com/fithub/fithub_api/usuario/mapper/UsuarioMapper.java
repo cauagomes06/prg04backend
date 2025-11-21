@@ -38,6 +38,7 @@ public class UsuarioMapper {
         pessoa.setTelefone(createDto.getPessoa().getTelefone());
         usuario.setPessoa(pessoa);
 
+
         usuario.setPerfil(perfilRepository.findById(createDto.getPerfil())
                 .orElseThrow(() -> new EntityNotFoundException("Perfil não encontrado")));
 
@@ -60,6 +61,7 @@ public class UsuarioMapper {
             responseDto.setUsername(usuario.getUsername());
             responseDto.setScoreTotal(usuario.getScoreTotal());
             responseDto.setDataCriacao(usuario.getDataCriacao());
+            responseDto.setFotoUrl(usuario.getFotoUrl());
 
             // Verificação de segurança para Pessoa
             if (usuario.getPessoa() != null) {

@@ -1,5 +1,6 @@
 package com.fithub.fithub_api.usuario.repository;
 
+import com.fithub.fithub_api.usuario.entity.StatusPlano;
 import com.fithub.fithub_api.usuario.entity.Usuario;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -7,6 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -25,4 +27,6 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
     List<Usuario> findTop20ByOrderByScoreTotalDesc();
 
     List<Usuario> findAllByPerfilNome(String nomePerfil);
+
+    List<Usuario> findByStatusPlanoAndDataVencimentoPlanoBefore(StatusPlano status, LocalDate dataReferencia);
 }

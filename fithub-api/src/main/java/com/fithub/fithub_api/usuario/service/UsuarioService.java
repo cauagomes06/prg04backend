@@ -4,6 +4,8 @@ import com.fithub.fithub_api.aula.dto.InstrutorResponseDto;
 import com.fithub.fithub_api.exception.EntityNotFoundException;
 import com.fithub.fithub_api.exception.PasswordInvalidException;
 import com.fithub.fithub_api.exception.UsernameUniqueViolationException;
+import com.fithub.fithub_api.perfil.entity.Perfil;
+import com.fithub.fithub_api.perfil.repository.PerfilRepository;
 import com.fithub.fithub_api.usuario.dto.UsuarioRankingDto;
 import com.fithub.fithub_api.usuario.entity.Usuario;
 import com.fithub.fithub_api.usuario.repository.UsuarioRepository;
@@ -29,6 +31,7 @@ public class UsuarioService implements  UsuarioIService, UserDetailsService {
 
     private final UsuarioRepository usuarioRepository;
     private final UsuarioMapper usuarioMapper;
+    private final PerfilRepository perfilRepository;
     private final PasswordEncoder passwordEncoder;
 
     public Usuario registrarUsuario(UsuarioCreateDto createDto) {
@@ -59,7 +62,7 @@ public class UsuarioService implements  UsuarioIService, UserDetailsService {
     }
     @Override
     @Transactional(readOnly = true)
-    public Usuario buscarPorId(long id) {
+    public Usuario buscarPorId(Long id) {
         return usuarioRepository.findById(id).orElseThrow(
                 () -> new EntityNotFoundException(String.format("Usuario com id %s  não encontrado", id)));
     }
@@ -72,7 +75,7 @@ public class UsuarioService implements  UsuarioIService, UserDetailsService {
     }
 
     @Override
-    public void delete(long id) {
+    public void delete(Long id) {
 
         Usuario usuario = this.buscarPorId(id);
         if(usuarioRepository.existsByUsername(usuario.getUsername())){
@@ -123,11 +126,33 @@ public class UsuarioService implements  UsuarioIService, UserDetailsService {
         }
         return rankingDtos;
     }
+    @Transactional
+    public void alterarPerfilUsuario(Long usuarioId, Long novoPerfilId) {
+        // 1. Buscar o usuário
+        Usuario usuario = usuarioRepository.findById(usuarioId)
+                .orElseThrow(() -> new RuntimeException("Usuário não encontrado com id: " + usuarioId));
 
+        // 2. Buscar o novo perfil desejado
+        Perfil novoPerfil = perfilRepository.findById(novoPerfilId)
+                .orElseThrow(() -> new RuntimeException("Perfil não encontrado com id: " + novoPerfilId));
+
+        // 3. Atualizar o perfil
+        usuario.setPerfil(novoPerfil);
+
+        usuarioRepository.save(usuario);
+    }
     @Override
     public List<InstrutorResponseDto> buscarInstrutores() {
         // "INSTRUTOR" deve ser o nome exato do seu perfil no banco de dados.
         List<Usuario> instrutores = usuarioRepository.findAllByPerfilNome("ROLE_PERSONAL");
         return UsuarioMapper.toListInstrutorDto(instrutores);
+    }
+
+    @Override
+    @Transactional
+    public void atualizarFoto(Long id, String novaUrl) {
+        Usuario usuario = buscarPorId(id);
+        usuario.setFotoUrl(novaUrl);
+        usuarioRepository.save(usuario);
     }
 }

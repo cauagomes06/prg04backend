@@ -14,14 +14,17 @@ public interface UsuarioIService {
 
     Usuario editarSenha(Long id,String senhaAtual, String novaSenha,String confirmaSenha);
 
-    Usuario buscarPorId(long id);
+    Usuario buscarPorId(Long id);
 
     List<Usuario> buscarTodos();
 
-    void delete(long id);
+    void delete(Long id);
 
     Usuario buscarPorUsername(String username);
 
     List<InstrutorResponseDto> buscarInstrutores();
 
+    void atualizarFoto(Long id, String novaUrl);
+
+    void alterarPerfilUsuario(Long usuarioId, Long novoPerfilId);
 }

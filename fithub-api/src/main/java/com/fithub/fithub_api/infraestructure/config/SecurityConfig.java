@@ -36,16 +36,27 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
                 .csrf(csrf -> csrf.disable())
-                .cors(cors -> cors.configurationSource(corsConfigurationSource())) // 5. ADICIONE ESTA LINHA
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorize -> authorize
 
                         // Endpoints públicos (Registo, Login, Planos, etc.)
                         .requestMatchers(HttpMethod.POST, "/api/usuarios/register").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/usuarios").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/planos/buscar").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/usuarios/ranking").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/exercicios").permitAll() // Para o catálogo de exercícios
+                        .requestMatchers(HttpMethod.GET, "/api/exercicios").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/perfis").permitAll()
+
+                        // ---> NOVA LINHA: Liberar a alteração de perfil <---
+                        // O "*" serve como coringa para qualquer ID que você passar
+                        .requestMatchers(HttpMethod.PATCH, "/api/usuarios/*/alterar-perfil").permitAll()
+
+                        .requestMatchers("/imagens/**").permitAll()
+                        .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
+
+                        // Qualquer outra rota precisa de autenticação
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthorizationFilter, UsernamePasswordAuthenticationFilter.class)
