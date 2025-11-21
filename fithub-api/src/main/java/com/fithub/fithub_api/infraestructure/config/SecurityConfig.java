@@ -7,21 +7,22 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
-import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity; // Importante
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.web.cors.CorsConfiguration; // 1. IMPORTE
-import org.springframework.web.cors.CorsConfigurationSource; // 2. IMPORTE
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource; // 3. IMPORTE
-import java.util.Arrays; 
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.Arrays;
 import java.util.List;
 
 @Configuration
 @EnableWebSecurity
-@EnableMethodSecurity
+@EnableMethodSecurity(prePostEnabled = true) // Habilita o @PreAuthorize
 @RequiredArgsConstructor
 public class SecurityConfig {
 
@@ -39,53 +40,32 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorize -> authorize
-
-                        // Endpoints públicos (Registo, Login, Planos, etc.)
-                        .requestMatchers(HttpMethod.POST, "/api/usuarios/register").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/usuarios").permitAll()
+                        // --- ENDPOINTS PÚBLICOS (WHITELIST) ---
+                        // Autenticação e Registo
                         .requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/planos/buscar").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/usuarios/ranking").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/exercicios").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/perfis").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/usuarios/register").permitAll()
 
-                        // ---> NOVA LINHA: Liberar a alteração de perfil <---
-                        // O "*" serve como coringa para qualquer ID que você passar
-                        .requestMatchers(HttpMethod.PATCH, "/api/usuarios/*/alterar-perfil").permitAll()
-
+                        // Recursos Estáticos e Documentação
                         .requestMatchers("/imagens/**").permitAll()
                         .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
 
-                        // Qualquer outra rota precisa de autenticação
+                        // --- TUDO O RESTO EXIGE AUTENTICAÇÃO ---
+                        // A granularidade (ADMIN vs USER) será feita nos Controllers com @PreAuthorize
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthorizationFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
 
-
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-
-        // Define as origens permitidas (o seu front-end)
-        // "*" permite TUDO, o que é bom para desenvolvimento.
-        // Para produção, mude para: "http://seu-site.com"
-        configuration.setAllowedOrigins(Arrays.asList("*"));
-
-        // Define os métodos HTTP permitidos (GET, POST, etc.)
+        configuration.setAllowedOrigins(Arrays.asList("*")); // Em produção, restrinja isso
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
-
-        // Define os cabeçalhos permitidos
         configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "x-auth-token"));
-
-        // Expõe cabeçalhos (se necessário, ex: para o token)
         configuration.setExposedHeaders(List.of("x-auth-token"));
-
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        // Aplica esta configuração a todas as rotas da sua API
         source.registerCorsConfiguration("/**", configuration);
-
         return source;
     }
 }

@@ -13,6 +13,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -25,7 +26,9 @@ public class ExercicioController implements ExercicioIController {
     private final ExercicioService exercicioService;
 
 
+    @Override
     @PostMapping("/register")
+    @PreAuthorize("hasAnyRole('ADMIN', 'PERSONAL')")
     public ResponseEntity<ExercicioResponseDto> registrar(@Valid @RequestBody ExercicioCreateDto exercicioCreateDto) {
         Exercicio novoExercicio = exercicioService.
                 criarExercicio(ExercicioMapper.toExercicio(exercicioCreateDto));
@@ -36,6 +39,7 @@ public class ExercicioController implements ExercicioIController {
 
         @PutMapping("/update/{id}")
         @Override
+        @PreAuthorize("hasAnyRole('ADMIN', 'PERSONAL')")
     public ResponseEntity<ExercicioResponseDto> editar(@PathVariable Long id,
                                                        @Valid @RequestBody ExercicioCreateDto exercicioCreateDto) { //reutilizei o createDto ao inves de criar um updateDto
 
@@ -45,14 +49,16 @@ public class ExercicioController implements ExercicioIController {
 
     @DeleteMapping("/delete/{id}")
     @Override
+    @PreAuthorize("hasAnyRole('ADMIN', 'PERSONAL')")
     public ResponseEntity<ExercicioResponseDto> excluir(@PathVariable Long id) {
 
             exercicioService.deletarExercicio(id);
 
         return ResponseEntity.noContent().build();
     }
-
+    @Override
     @GetMapping("/buscar")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<List<ExercicioResponseDto>> buscarTodos() {
 
       List<Exercicio> exercicios = exercicioService.buscarTodos();
@@ -62,6 +68,7 @@ public class ExercicioController implements ExercicioIController {
 
     @Override
     @GetMapping(value ="/buscar",params = "grupoMuscular")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<List<ExercicioResponseDto>> buscarPorGrupoMuscular(
             @RequestParam ("grupoMuscular") String grupoMuscular) {
 

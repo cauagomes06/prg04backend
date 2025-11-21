@@ -16,6 +16,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
@@ -35,6 +36,7 @@ public class CompeticaoController implements CompeticaoIController{
 
     @Override
     @PostMapping("/register")
+    @PreAuthorize("hasAnyRole('ADMIN', 'PERSONAL')")
     public ResponseEntity<CompeticaoResponseDto> criarCompeticao(@RequestBody @Valid CompeticaoCreateDto createDto) {
 
         Competicao competicao = competicoService.create(CompeticaoMapper.toCompeticao(createDto));
@@ -43,6 +45,7 @@ public class CompeticaoController implements CompeticaoIController{
 
     @Override
     @GetMapping("/buscar")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<List<CompeticaoResponseDto>> listarCompeticao() {
 
         List<Competicao> competicoes = competicoService.listarCompeticao();
@@ -51,6 +54,7 @@ public class CompeticaoController implements CompeticaoIController{
 
     @Override
     @GetMapping("/buscar/{id}")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<CompeticaoResponseDto> buscarPorId(@PathVariable Long id) {
 
             Competicao competicao = competicoService.buscarPorId(id);
@@ -59,6 +63,7 @@ public class CompeticaoController implements CompeticaoIController{
 
     @Override
     @DeleteMapping("/delete/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deletarCompeticao(@PathVariable Long id) {
             competicoService.deletar(id);
         return ResponseEntity.noContent().build();
@@ -66,6 +71,7 @@ public class CompeticaoController implements CompeticaoIController{
 
     @Override
     @PutMapping("/update/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'PERSONAL')")
     public ResponseEntity<CompeticaoResponseDto> editarCompeticao(@RequestBody CompeticaoCreateDto updateDto,
                                                                   @PathVariable Long id) {
 
@@ -74,7 +80,9 @@ public class CompeticaoController implements CompeticaoIController{
         return ResponseEntity.ok().body(CompeticaoMapper.toDto(competicaoModificada));
     }
 
+    @Override
     @PostMapping("/{id}/inscrever")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<InscricaoResponseDto> inscrever(@PathVariable Long id,
                                                          @AuthenticationPrincipal UserDetails userDetails) {
 
@@ -86,7 +94,9 @@ public class CompeticaoController implements CompeticaoIController{
 
     }
 
+    @Override
     @GetMapping("/{id}/ranking")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<List<InscricaoResponseDto>> getRankingDaCompeticao(
             @PathVariable Long id) {
 
@@ -106,6 +116,8 @@ public class CompeticaoController implements CompeticaoIController{
         return usuarioService.buscarPorUsername(userDetails.getUsername());
     }
 
+    @Override
+    @PreAuthorize("hasAnyRole('ADMIN', 'PERSONAL')")
     @PatchMapping("/{id}/status")
     public ResponseEntity<Void> atualizarStatus(
             @PathVariable Long id,

@@ -12,6 +12,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -25,6 +26,7 @@ public class PlanoController implements PlanoIController{
 
     @Override
     @PostMapping("/register")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<PlanoResponseDto> registrarPlano(@RequestBody @Valid PlanoCreateDto planoCreateDto) {
         Plano novoPlano = planoService.registrarPlano(PlanoMapper.toPlano(planoCreateDto));
 
@@ -33,6 +35,7 @@ public class PlanoController implements PlanoIController{
 
     @Override
     @GetMapping("/buscar")
+    @PreAuthorize("permitAll()")
     public ResponseEntity<List<PlanoResponseDto>> listarPlanos() {
 
         List<Plano> listPlano = planoService.buscarPlanos();
@@ -41,12 +44,14 @@ public class PlanoController implements PlanoIController{
 
     @Override
     @DeleteMapping("/delete/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deletePlano(@PathVariable Long id) {
         planoService.deletePlano(id);
         return  ResponseEntity.noContent().build();
     }
     @Override
     @GetMapping("/{id}")
+    @PreAuthorize("permitAll()")
     public ResponseEntity<PlanoResponseDto> buscarPlanoByid(@PathVariable Long id) {
         Plano plano = planoService.buscarPlanoById(id);
 
@@ -54,12 +59,14 @@ public class PlanoController implements PlanoIController{
     }
     @Override
     @PutMapping("/update/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<PlanoResponseDto> editarPlano(
             @PathVariable Long id,@RequestBody @Valid PlanoUpdateDto updateDto){
 
         PlanoResponseDto planoAtulizado =  planoService.editarPlano(id,updateDto);
         return ResponseEntity.ok(planoAtulizado);
     }
+    @PreAuthorize("permitAll()")
     @PatchMapping("/mudar/{usuarioId}")
     public ResponseEntity<Void> mudarPlano(
             @PathVariable Long usuarioId,

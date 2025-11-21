@@ -17,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
@@ -31,6 +32,7 @@ public class AulaController implements AulaIController {
     private final UsuarioService usuarioService;
     private final AulaService aulaService;
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'PERSONAL')")
     @PostMapping("/register")
     public ResponseEntity<AulaResponseDto> createAula(@Valid @RequestBody AulaCreateDto aulaCreateDto){
 
@@ -38,7 +40,7 @@ public class AulaController implements AulaIController {
 
       return ResponseEntity.status(HttpStatus.CREATED).body(AulaMapper.toAulaDto(novaAula));
     }
-
+    @PreAuthorize("hasAnyRole('ADMIN', 'PERSONAL')")
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<AulaResponseDto> deleteAula(@PathVariable Long id){
 
@@ -47,6 +49,7 @@ public class AulaController implements AulaIController {
     }
 
     @GetMapping("/buscar/{id}")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<AulaResponseDto> buscarAulaPorId(@PathVariable Long id){
 
         Aula aulaEncontrada =aulaService.buscarPorId(id);
@@ -55,6 +58,7 @@ public class AulaController implements AulaIController {
     }
 
     @GetMapping("/buscar")
+    @PreAuthorize("isAuthenticated()")
         public ResponseEntity<List<AulaResponseDto>> buscarAulas(
             @RequestParam(value = "ano", required = false) Integer ano,
             @RequestParam(value = "mes", required = false) Integer mes,
@@ -67,6 +71,7 @@ public class AulaController implements AulaIController {
         }
 
         @PatchMapping("/update/{id}")
+        @PreAuthorize("hasAnyRole('ADMIN', 'PERSONAL')")
         public ResponseEntity<AulaResponseDto> editarAula(
                 @RequestBody AulaUpdateDto updateDto,
                 @PathVariable Long id,
@@ -78,12 +83,14 @@ public class AulaController implements AulaIController {
         }
 
     @GetMapping("/instrutores")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<List<InstrutorResponseDto>> getInstrutores() {
         List<InstrutorResponseDto> instrutores = usuarioService.buscarInstrutores();
         return ResponseEntity.ok(instrutores);
     }
 
     @GetMapping("/{id}/participantes")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<List<ParticipanteDto>> getParticipantes(
             @PathVariable Long id,
             @AuthenticationPrincipal UserDetails userDetails) {
@@ -94,6 +101,7 @@ public class AulaController implements AulaIController {
 
         return ResponseEntity.ok(participantes);
     }
+
 
     private Usuario getUsuarioLogado(UserDetails userDetails) {
         if (userDetails == null) {

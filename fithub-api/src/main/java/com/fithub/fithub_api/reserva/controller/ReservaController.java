@@ -11,6 +11,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
@@ -26,6 +27,7 @@ public class ReservaController implements ReservaIController{
     private final UsuarioService usuarioService;
 
     @GetMapping("/usuario")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<List<ReservaResponseDto>> listaReservas(
             @AuthenticationPrincipal UserDetails userDetails) {
 
@@ -35,6 +37,7 @@ public class ReservaController implements ReservaIController{
         return ResponseEntity.ok(ReservaMapper.toListDto(minhasReservas));
     }
     @PostMapping("/register")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<ReservaResponseDto> criarReserva(
             @RequestBody @Valid ReservaCreateDto dto,
             @AuthenticationPrincipal UserDetails userDetails) {
@@ -48,6 +51,7 @@ public class ReservaController implements ReservaIController{
     }
 
     @DeleteMapping("/delete/{id}")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<Void> cancelarReserva(@PathVariable Long id ,
     @AuthenticationPrincipal UserDetails userDetails){
         Usuario usuarioLogado = getUsuarioLogado(userDetails);

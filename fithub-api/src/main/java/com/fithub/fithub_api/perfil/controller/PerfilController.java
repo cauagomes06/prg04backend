@@ -12,6 +12,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -25,6 +26,7 @@ public class PerfilController implements PerfilIController {
 
     @Override
     @PostMapping("/register")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<PerfilResponseDto> registrarPerfil(PerfilCreateDto perfilCreateDto) {
         Perfil perfil = perfilService.registrarPerfil(PerfilMapper.toPerfil(perfilCreateDto));
         return ResponseEntity.status(HttpStatus.CREATED).body(PerfilMapper.toPerfilDto(perfil));
@@ -32,6 +34,7 @@ public class PerfilController implements PerfilIController {
 
     @Override
     @DeleteMapping("/delete/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deletePerfil( @PathVariable Long id) {
         perfilService.delete(id);
         return ResponseEntity.noContent().build();
@@ -39,6 +42,7 @@ public class PerfilController implements PerfilIController {
 
     @Override
     @GetMapping
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<List<PerfilResponseDto>> listarPerfil() {
         List<Perfil> perfilList = perfilService.buscarPerfis();
         return ResponseEntity.ok(PerfilMapper.toPerfilDtoList(perfilList));
@@ -46,6 +50,7 @@ public class PerfilController implements PerfilIController {
 
     @Override
     @GetMapping("/{id}")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<PerfilResponseDto> buscarPerfilByid( @PathVariable Long id) {
 
         Perfil perfil = perfilService.buscarPerfilByid(id);
@@ -54,6 +59,7 @@ public class PerfilController implements PerfilIController {
 
     @Override
     @PutMapping("/update/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<PerfilResponseDto> editarPerfil(
             @PathVariable Long id, @RequestBody @Valid PerfilUpdateDto updateDto) {
 

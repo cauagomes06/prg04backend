@@ -11,6 +11,7 @@ import com.fithub.fithub_api.usuario.service.UsuarioService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -28,6 +29,7 @@ public class InscricaoController implements InscricaoIController{
     private final UsuarioService usuarioIService;
 
     @PostMapping("/{idInscricao}/resultado")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<InscricaoResponseDto> submeterResultado
             (@PathVariable Long idInscricao,
                  @Valid @RequestBody ResultadoSubmitDto dto,
@@ -41,6 +43,7 @@ public class InscricaoController implements InscricaoIController{
     }
 
     @DeleteMapping("/delete/{idInscricao}")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<Void> cancelarInscricao(
             @PathVariable Long idInscricao,
             @AuthenticationPrincipal UserDetails userDetails) {
@@ -52,6 +55,7 @@ public class InscricaoController implements InscricaoIController{
     }
 
     @GetMapping("/usuario")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<List<InscricaoResponseDto>> getInscricoesDoUsuario(
             @AuthenticationPrincipal UserDetails userDetails) {
         // Busca o utilizador logado a partir do token de autenticação

@@ -11,6 +11,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
@@ -25,7 +26,9 @@ public class TreinoController implements TreinoIController{
     private final TreinoService treinoService;
     private final UsuarioService usuarioService; // Para buscar a entidade Usuario
 
+    @Override
     @PostMapping("/register")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<TreinoResponseDto> criar(
             @Valid @RequestBody TreinoCreateDto dto,
             @AuthenticationPrincipal UserDetails userDetails) {
@@ -34,7 +37,9 @@ public class TreinoController implements TreinoIController{
         Treino treinoSalvo = treinoService.criarTreino(dto, usuarioLogado);
         return ResponseEntity.status(HttpStatus.CREATED).body(TreinoMapper.toDto(treinoSalvo));
     }
+    @Override
     @PutMapping("update/{id}")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<TreinoResponseDto> atualizar(
             @PathVariable Long id,@RequestBody @Valid TreinoCreateDto dto,
             @AuthenticationPrincipal UserDetails userDetails) {
@@ -45,6 +50,8 @@ public class TreinoController implements TreinoIController{
 
          return ResponseEntity.status(HttpStatus.OK).body(TreinoMapper.toDto(treinoAtualizado));
     }
+    @Override
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/{id}")
     public ResponseEntity<TreinoResponseDto> buscarPorId(@PathVariable Long id){
 
@@ -61,28 +68,31 @@ public class TreinoController implements TreinoIController{
         return ResponseEntity.noContent().build();
     }
     @GetMapping("/buscar")
+    @PreAuthorize("isAuthenticated()")
      public ResponseEntity<List<TreinoResponseDto>> buscarTodosTreinosPublicos(){
 
        List<Treino> treinos =  treinoService.buscarTodosTreinosPublicos()   ;
         return ResponseEntity.ok().body(TreinoMapper.toListDto(treinos));
      }
+    @PreAuthorize("isAuthenticated()")
     @GetMapping
     public ResponseEntity<List<TreinoResponseDto>> buscarTodosTreinos(){
 
         List<Treino> treinos =  treinoService.buscarTodos()   ;
         return ResponseEntity.ok().body(TreinoMapper.toListDto(treinos));
     }
-
-            @PatchMapping("/{id}/publicar")
-            public ResponseEntity<TreinoResponseDto> publicar(
+    @PreAuthorize("hasAnyRole('ADMIN', 'PERSONAL')")
+    @PatchMapping("/{id}/publicar")
+    public ResponseEntity<TreinoResponseDto> publicar(
                     @PathVariable Long id,
                     @AuthenticationPrincipal UserDetails userDetails) {
 
                 Usuario usuarioLogado = getUsuarioLogado(userDetails);
                 Treino treinoPublicado = treinoService.publicarTreino(id, usuarioLogado);
                 return ResponseEntity.ok(TreinoMapper.toDto(treinoPublicado));
-            }
+    }
 
+    @PreAuthorize("isAuthenticated()")
     @PostMapping("/{id}/clonar")
     public ResponseEntity<TreinoResponseDto> clonarTreino(
             @PathVariable Long id,
@@ -94,6 +104,7 @@ public class TreinoController implements TreinoIController{
 
         return ResponseEntity.status(HttpStatus.CREATED).body(TreinoMapper.toDto(novoTreino));
     }
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/usuario/{id}")
     public ResponseEntity<List<TreinoResponseDto>> buscarTreinosUsuario(@PathVariable Long id){
 

@@ -29,6 +29,7 @@ private final UsuarioService usuarioService;
 
 
 @GetMapping("/minhas")
+@PreAuthorize("isAuthenticated()")
 public ResponseEntity<List<NotificacaoResponseDto>> minhasNotificacoes
         (@AuthenticationPrincipal UserDetails userDetails){
 
@@ -38,6 +39,7 @@ public ResponseEntity<List<NotificacaoResponseDto>> minhasNotificacoes
     return ResponseEntity.ok().body(NotificacaoMapper.toListNotificacoesDto(notificacoes));
 }
     @GetMapping("/contagem-nao-lidas")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<Map<String, Integer>> getContagemNaoLidas(
             @AuthenticationPrincipal UserDetails userDetails) {
 
@@ -49,6 +51,7 @@ public ResponseEntity<List<NotificacaoResponseDto>> minhasNotificacoes
     }
 
     @PatchMapping("/{idNotificacao}/ler")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<NotificacaoResponseDto> marcarComoLida(
             @PathVariable Long idNotificacao,
             @AuthenticationPrincipal UserDetails userDetails) {
@@ -60,6 +63,7 @@ public ResponseEntity<List<NotificacaoResponseDto>> minhasNotificacoes
     }
 
     @PostMapping("/broadcast")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> enviarParaTodos(@RequestBody @Valid NotificacaoBroadcastDto dto) {
         notificacaoService.enviarParaTodos(dto);
         return ResponseEntity.ok().build();

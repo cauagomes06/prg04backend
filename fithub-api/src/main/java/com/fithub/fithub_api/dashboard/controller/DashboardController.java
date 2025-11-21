@@ -18,7 +18,7 @@ public class DashboardController implements DashboardIController {
     private final DashboardService dashboardService;
 
     @GetMapping("/stats")
-    @PreAuthorize("hasRole('ROLE_ADMIN')") // Apenas Admin pode ver o financeiro/stats
+    @PreAuthorize("hasRole('ADMIN')") // Apenas Admin pode ver o financeiro/stats
     public ResponseEntity<DashboardStatsDto> getDashboardStats() {
         return ResponseEntity.ok(dashboardService.getStats());
     }
