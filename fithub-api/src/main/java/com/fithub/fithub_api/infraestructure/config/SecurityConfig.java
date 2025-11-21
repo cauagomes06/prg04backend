@@ -43,7 +43,7 @@ public class SecurityConfig {
                         // Endpoints públicos (Registo, Login, Planos, etc.)
                         .requestMatchers(HttpMethod.POST, "/api/usuarios/register").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/planos").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/planos/buscar").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/usuarios/ranking").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/exercicios").permitAll() // Para o catálogo de exercícios
                         .anyRequest().authenticated()

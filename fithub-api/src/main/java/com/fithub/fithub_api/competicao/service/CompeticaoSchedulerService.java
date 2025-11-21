@@ -29,14 +29,12 @@ public class CompeticaoSchedulerService {
     private final UsuarioRepository usuarioRepository;
     private final NotificacaoService notificacaoService;
 
-    // Executa a cada minuto (para testes é melhor que hora a hora)
-    // cron = "0 * * * * ?" -> A cada minuto
+    // Executa a cada minuto
     @Scheduled(cron = "0 * * * * ?")
     @Transactional
     public void verificarEEncerrarCompeticoes() {
         logger.info("Scheduler a correr: Verificando competições para encerrar...");
 
-        // Procura por ABERTA ou EM_ANDAMENTO
         List<StatusCompeticao> statusAtivos = Arrays.asList(
                 StatusCompeticao.ABERTA,
                 StatusCompeticao.EM_ANDAMENTO
@@ -48,52 +46,61 @@ public class CompeticaoSchedulerService {
         );
 
         if (competicoesParaEncerrar.isEmpty()) {
-            logger.info("Nenhuma competição pendente para encerrar.");
             return;
         }
 
         for (Competicao competicao : competicoesParaEncerrar) {
             logger.info("A encerrar competição ID #{}: {}", competicao.getId(), competicao.getNome());
 
-            // Busca ranking ordenado
+            // Busca o ranking completo ordenado
             List<Inscricao> ranking = inscricaoService.buscarInscricoesPorCompeticaoOrdenado(competicao.getId());
 
-            // Verifica se há inscritos e se o primeiro lugar tem resultado
             if (!ranking.isEmpty()) {
-                Inscricao vencedorInscricao = ranking.get(0);
+                // --- NOVA LÓGICA: PREMIAR TOP 5 ---
 
-                if (vencedorInscricao.getResultado() != null) {
-                    Usuario vencedor = vencedorInscricao.getUsuario();
-                    int pontosPelaVitoria = competicao.getPontosVitoria();
+                // Percentagens para 1º, 2º, 3º, 4º, 5º
+                double[] distribuicao = {1.0, 0.7, 0.5, 0.3, 0.1};
 
-                    // Atualiza pontos
-                    logger.info("Vencedor encontrado: {}. Adicionando {} pontos.", vencedor.getPessoa().getNomeCompleto(), pontosPelaVitoria);
+                // Garante que não tenta acessar índices que não existem (se tiver menos de 5 inscritos)
+                int totalPremiados = Math.min(ranking.size(), 5);
 
-                    // --- CORREÇÃO AQUI ---
-                    // Usamos Integer para permitir que aceite null (se for Wrapper) ou faça autoboxing (se for primitivo)
-                    Integer scoreTotalObj = vencedor.getScoreTotal();
-                    int scoreAtual = (scoreTotalObj == null) ? 0 : scoreTotalObj;
+                for (int i = 0; i < totalPremiados; i++) {
+                    Inscricao inscricao = ranking.get(i);
 
-                    vencedor.setScoreTotal(scoreAtual + pontosPelaVitoria);
+                    // Só recebe pontos quem submeteu um resultado válido
+                    if (inscricao.getResultado() != null) {
+                        Usuario participante = inscricao.getUsuario();
 
-                    usuarioRepository.save(vencedor);
+                        // Calcula os pontos com base na posição (cast para int)
+                        int pontosGanhos = (int) (competicao.getPontosVitoria() * distribuicao[i]);
 
-                    // Envia Notificação
-                    try {
-                        String link = "/portal/competicoes";
-                        notificacaoService.criarNotificacao(
-                                vencedor,
-                                "Parabéns! Venceu a competição '" + competicao.getNome() + "' e ganhou " + pontosPelaVitoria + " pontos!",
-                                link
-                        );
-                    } catch (Exception e) {
-                        logger.error("Erro ao enviar notificação para vencedor: ", e);
+                        // Atualiza o Score do Utilizador
+                        if (pontosGanhos > 0) {
+                            Integer scoreTotalObj = participante.getScoreTotal();
+                            int scoreAtual = (scoreTotalObj == null) ? 0 : scoreTotalObj;
+
+                            participante.setScoreTotal(scoreAtual + pontosGanhos);
+                            usuarioRepository.save(participante);
+
+                            logger.info("Posição #{}: {} ganhou {} pontos.", (i + 1), participante.getPessoa().getNomeCompleto(), pontosGanhos);
+
+                            // Envia Notificação Personalizada
+                            try {
+                                String link = "/portal/competicoes";
+                                String mensagem = String.format(
+                                        "Parabéns! Ficou em %dº lugar na competição '%s' e ganhou %d pontos!",
+                                        (i + 1), competicao.getNome(), pontosGanhos
+                                );
+
+                                notificacaoService.criarNotificacao(participante, mensagem, link);
+                            } catch (Exception e) {
+                                logger.error("Erro ao enviar notificação: ", e);
+                            }
+                        }
                     }
-                } else {
-                    logger.warn("Competição ID #{} tem inscritos, mas o líder não submeteu resultado.", competicao.getId());
                 }
             } else {
-                logger.info("Competição ID #{} encerrada sem participantes.", competicao.getId());
+                logger.info("Competição encerrada sem participantes.");
             }
 
             // Atualiza status para ENCERRADA
