@@ -1,13 +1,16 @@
 package com.fithub.fithub_api.notificacao.controller;
 
+import com.fithub.fithub_api.notificacao.dto.NotificacaoBroadcastDto;
 import com.fithub.fithub_api.notificacao.dto.NotificacaoResponseDto;
 import com.fithub.fithub_api.notificacao.entity.Notificacao;
 import com.fithub.fithub_api.notificacao.mapper.NotificacaoMapper;
 import com.fithub.fithub_api.notificacao.service.NotificacaoService;
 import com.fithub.fithub_api.usuario.entity.Usuario;
 import com.fithub.fithub_api.usuario.service.UsuarioService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -56,6 +59,11 @@ public ResponseEntity<List<NotificacaoResponseDto>> minhasNotificacoes
         return ResponseEntity.ok(NotificacaoMapper.toNotificacaoDto(notificacao));
     }
 
+    @PostMapping("/broadcast")
+    public ResponseEntity<Void> enviarParaTodos(@RequestBody @Valid NotificacaoBroadcastDto dto) {
+        notificacaoService.enviarParaTodos(dto);
+        return ResponseEntity.ok().build();
+    }
     // --- Método Auxiliar ---
     private Usuario getUsuarioLogado(UserDetails userDetails) {
         if (userDetails == null) {

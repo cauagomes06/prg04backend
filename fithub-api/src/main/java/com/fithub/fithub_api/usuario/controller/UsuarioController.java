@@ -1,6 +1,8 @@
 package com.fithub.fithub_api.usuario.controller;
 
 
+import com.fithub.fithub_api.pessoa.dto.PessoaUpdateDto;
+import com.fithub.fithub_api.pessoa.service.PessoaService;
 import com.fithub.fithub_api.usuario.dto.UsuarioRankingDto;
 import com.fithub.fithub_api.usuario.entity.Usuario;
 import com.fithub.fithub_api.usuario.service.UsuarioService;
@@ -26,6 +28,7 @@ public class UsuarioController implements UsuarioIController {
 
     private final UsuarioService usuarioService;
     private final UsuarioMapper usuarioMapper;
+    private final PessoaService pessoaService;
 
 
 
@@ -68,6 +71,22 @@ public class UsuarioController implements UsuarioIController {
     public ResponseEntity<List<UsuarioRankingDto>> getRankingGeral() {
         List<UsuarioRankingDto> ranking = usuarioService.getRankingGeral();
         return ResponseEntity.ok(ranking);
+    }
+    @PutMapping("/me/dados-pessoais")
+    public ResponseEntity<UsuarioResponseDto> atualizarDadosPessoais(
+            @RequestBody @Valid PessoaUpdateDto dto,
+            @AuthenticationPrincipal UserDetails userDetails) {
+
+        //   Busca o usuário logado
+        Usuario usuarioLogado = usuarioService.buscarPorUsername(userDetails.getUsername());
+
+        //  Atualiza a Pessoa vinculada a este usuário
+        if (usuarioLogado.getPessoa() != null) {
+            pessoaService.atualizar(usuarioLogado.getPessoa().getId(), dto);
+        }
+
+        //  Retorna o DTO atualizado
+        return ResponseEntity.ok(usuarioMapper.toDto(usuarioLogado));
     }
 
     @GetMapping("/me")

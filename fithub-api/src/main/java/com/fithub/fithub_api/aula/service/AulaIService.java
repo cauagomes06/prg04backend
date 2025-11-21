@@ -1,5 +1,6 @@
 package com.fithub.fithub_api.aula.service;
 
+import com.fithub.fithub_api.aula.dto.ParticipanteDto;
 import com.fithub.fithub_api.aula.entity.Aula;
 import com.fithub.fithub_api.usuario.entity.Usuario;
 import com.fithub.fithub_api.aula.dto.AulaCreateDto;
@@ -15,6 +16,7 @@ public interface AulaIService {
 
     Aula buscarPorId(Long id);
 
+    List<ParticipanteDto> buscarParticipantes(Long aulaId, Usuario usuarioLogado);
 
     Aula editarAula(Long id, AulaUpdateDto updateDto, Usuario usuarioLogado);
 

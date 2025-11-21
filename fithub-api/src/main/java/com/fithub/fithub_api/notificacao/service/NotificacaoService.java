@@ -1,9 +1,11 @@
 package com.fithub.fithub_api.notificacao.service;
 
 import com.fithub.fithub_api.exception.EntityNotFoundException;
+import com.fithub.fithub_api.notificacao.dto.NotificacaoBroadcastDto;
 import com.fithub.fithub_api.notificacao.entity.Notificacao;
 import com.fithub.fithub_api.notificacao.repository.NotificacaoRepository;
 import com.fithub.fithub_api.usuario.entity.Usuario;
+import com.fithub.fithub_api.usuario.repository.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
@@ -16,6 +18,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class NotificacaoService implements NotificacaoIService {
 
+    private final UsuarioRepository usuarioRepository;
     private final NotificacaoRepository notificacaoRepository;
 
     @Transactional
@@ -55,5 +58,15 @@ public class NotificacaoService implements NotificacaoIService {
         // 3. Marca como lida e salva
         notificacao.setLida(true);
         return notificacaoRepository.save(notificacao);
+    }
+
+    @Override
+    @Transactional
+    public void enviarParaTodos(NotificacaoBroadcastDto dto) {
+        List<Usuario> todosUsuarios = usuarioRepository.findAll();
+
+        for (Usuario usuario : todosUsuarios) {
+            criarNotificacao(usuario, dto.getMensagem(), dto.getLink());
+        }
     }
 }

@@ -1,10 +1,12 @@
 package com.fithub.fithub_api.aula.service;
 
+import com.fithub.fithub_api.aula.dto.ParticipanteDto;
 import com.fithub.fithub_api.aula.entity.Aula;
 import com.fithub.fithub_api.aula.repository.AulaRepository;
 import com.fithub.fithub_api.exception.AulaConflictException;
 import com.fithub.fithub_api.exception.EntityNotFoundException;
 
+import com.fithub.fithub_api.reserva.mapper.ReservaMapper;
 import com.fithub.fithub_api.usuario.entity.Usuario;
 import com.fithub.fithub_api.usuario.service.UsuarioIService;
 import com.fithub.fithub_api.aula.dto.AulaCreateDto;
@@ -100,6 +102,14 @@ public class AulaService implements AulaIService {
 
 
         return aulaRepository.save(aulaExistente);
+    }
+    @Override
+    @Transactional(readOnly = true)
+    public List<ParticipanteDto> buscarParticipantes(Long aulaId, Usuario usuarioLogado) {
+
+        Aula aula = buscarPorId(aulaId);
+
+        return ReservaMapper.toParticipanteListDto(aula.getReservas());
     }
 
     @Override

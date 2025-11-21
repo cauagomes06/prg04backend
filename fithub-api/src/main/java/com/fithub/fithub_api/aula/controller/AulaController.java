@@ -1,7 +1,7 @@
 package com.fithub.fithub_api.aula.controller;
 
 
-import com.fithub.fithub_api.aula.dto.InstrutorResponseDto;
+import com.fithub.fithub_api.aula.dto.*;
 import com.fithub.fithub_api.aula.entity.Aula;
 import com.fithub.fithub_api.aula.mapper.AulaMapper;
 import com.fithub.fithub_api.aula.service.AulaService;
@@ -10,9 +10,6 @@ import com.fithub.fithub_api.reserva.entity.Reserva;
 import com.fithub.fithub_api.reserva.service.ReservaService;
 import com.fithub.fithub_api.usuario.entity.Usuario;
 import com.fithub.fithub_api.usuario.service.UsuarioService;
-import com.fithub.fithub_api.aula.dto.AulaResponseDto;
-import com.fithub.fithub_api.aula.dto.AulaCreateDto;
-import com.fithub.fithub_api.aula.dto.AulaUpdateDto;
 import com.fithub.fithub_api.reserva.dto.ReservaResponseDto;
 import com.fithub.fithub_api.reserva.mapper.ReservaMapper;
 import jakarta.validation.Valid;
@@ -33,7 +30,6 @@ public class AulaController implements AulaIController {
 
     private final UsuarioService usuarioService;
     private final AulaService aulaService;
-    private final ReservaService reservaService;
 
     @PostMapping("/register")
     public ResponseEntity<AulaResponseDto> createAula(@Valid @RequestBody AulaCreateDto aulaCreateDto){
@@ -81,21 +77,22 @@ public class AulaController implements AulaIController {
             return ResponseEntity.ok().body(AulaMapper.toAulaDto(aulaEditada));
         }
 
-    @PostMapping("/{id}/reservar")
-    public ResponseEntity<ReservaResponseDto> reservarAula(@PathVariable Long id,
-                                                           @AuthenticationPrincipal UserDetails userDetails){
-
-        Usuario usuarioLogado = getUsuarioLogado(userDetails);
-        //recebe o id da aula e do usuario logado para criar uma reserva
-        Reserva novaReserva = reservaService.criarReserva(id,usuarioLogado);
-
-        return ResponseEntity.status(HttpStatus.CREATED).body(ReservaMapper.toDto(novaReserva));
-    }
-
     @GetMapping("/instrutores")
     public ResponseEntity<List<InstrutorResponseDto>> getInstrutores() {
         List<InstrutorResponseDto> instrutores = usuarioService.buscarInstrutores();
         return ResponseEntity.ok(instrutores);
+    }
+
+    @GetMapping("/{id}/participantes")
+    public ResponseEntity<List<ParticipanteDto>> getParticipantes(
+            @PathVariable Long id,
+            @AuthenticationPrincipal UserDetails userDetails) {
+
+        // 1. Identifica quem está a fazer o pedido
+        Usuario usuarioLogado = getUsuarioLogado(userDetails);
+        List<ParticipanteDto> participantes = aulaService.buscarParticipantes(id, usuarioLogado);
+
+        return ResponseEntity.ok(participantes);
     }
 
     private Usuario getUsuarioLogado(UserDetails userDetails) {

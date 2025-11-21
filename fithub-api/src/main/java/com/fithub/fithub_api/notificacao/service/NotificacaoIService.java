@@ -1,5 +1,6 @@
 package com.fithub.fithub_api.notificacao.service;
 
+import com.fithub.fithub_api.notificacao.dto.NotificacaoBroadcastDto;
 import com.fithub.fithub_api.notificacao.entity.Notificacao;
 import com.fithub.fithub_api.usuario.entity.Usuario;
 
@@ -14,4 +15,6 @@ public interface NotificacaoIService {
     public int contarNotificacoesNaoLidas(Usuario usuarioLogado);
 
     public Notificacao marcarComoLida(Long idNotificacao, Usuario usuarioLogado);
+
+    void enviarParaTodos(NotificacaoBroadcastDto dto);
 }
