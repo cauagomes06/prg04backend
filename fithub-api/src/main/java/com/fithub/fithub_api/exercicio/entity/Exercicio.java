@@ -1,20 +1,20 @@
 package com.fithub.fithub_api.exercicio.entity;
 
+import com.fithub.fithub_api.infraestructure.entity.PersistenceEntity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import java.io.Serializable;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @Entity
 @Table(name = "exercicios")
-public class Exercicio {
+public class Exercicio extends PersistenceEntity implements Serializable {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
 
     @Column(nullable = false)
     private String nome;

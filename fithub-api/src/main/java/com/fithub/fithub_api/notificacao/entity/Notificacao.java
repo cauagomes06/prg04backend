@@ -1,6 +1,7 @@
 package com.fithub.fithub_api.notificacao.entity;
 
 import com.fithub.fithub_api.infraestructure.entity.Auditable;
+import com.fithub.fithub_api.infraestructure.entity.PersistenceEntity;
 import com.fithub.fithub_api.usuario.entity.Usuario;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -14,11 +15,8 @@ import java.io.Serializable;
 @NoArgsConstructor
 @Entity
 @Table(name = "notificacoes")
-public class Notificacao extends Auditable implements Serializable {
+public class Notificacao extends PersistenceEntity implements Serializable {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
 
     // Relacionamento: Muitas notificações para UM destinatário (Usuário)
     @ManyToOne(fetch = FetchType.LAZY)

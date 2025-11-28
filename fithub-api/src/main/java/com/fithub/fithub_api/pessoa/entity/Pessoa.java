@@ -1,5 +1,6 @@
 package com.fithub.fithub_api.pessoa.entity;
 
+import com.fithub.fithub_api.infraestructure.entity.PersistenceEntity;
 import com.fithub.fithub_api.usuario.entity.Usuario;
 import com.fithub.fithub_api.infraestructure.entity.Auditable;
 import jakarta.persistence.*;
@@ -14,11 +15,7 @@ import java.io.Serializable;
 @NoArgsConstructor
 @Entity
 @Table(name = "pessoas")
-public  class Pessoa extends Auditable implements Serializable {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(nullable = false)
-    private Long id;
+public  class Pessoa extends PersistenceEntity implements Serializable {
 
     @Column(nullable = false,length = 100)
     private String nomeCompleto;

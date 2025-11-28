@@ -1,6 +1,7 @@
 package com.fithub.fithub_api.competicao.entity;
 
 import com.fithub.fithub_api.infraestructure.entity.Auditable;
+import com.fithub.fithub_api.infraestructure.entity.PersistenceEntity;
 import com.fithub.fithub_api.inscricao.entity.Inscricao;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -19,11 +20,7 @@ import java.util.Set;
 @Setter
 @Entity
 @Table(name = "competicoes")
-public class Competicao  extends Auditable  implements Serializable {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(nullable = false)
-    private Long id;
+public class Competicao  extends PersistenceEntity implements Serializable {
 
     @Column(name = "nome", nullable = false)
     private String nome;

@@ -1,6 +1,7 @@
 package com.fithub.fithub_api.aula.entity;
 
 import com.fithub.fithub_api.infraestructure.entity.Auditable;
+import com.fithub.fithub_api.infraestructure.entity.PersistenceEntity;
 import com.fithub.fithub_api.reserva.entity.Reserva;
 import com.fithub.fithub_api.usuario.entity.Usuario;
 import jakarta.persistence.*;
@@ -18,10 +19,7 @@ import java.util.Set;
 @NoArgsConstructor
 @Entity
 @Table(name ="aulas")
-public class Aula extends Auditable implements Serializable {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+public class Aula extends PersistenceEntity implements Serializable {
 
     @Column(nullable = false, length = 100)
     private String nome;

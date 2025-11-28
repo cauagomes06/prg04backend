@@ -1,6 +1,7 @@
 package com.fithub.fithub_api.perfil.entity;
 
 import com.fithub.fithub_api.infraestructure.entity.Auditable;
+import com.fithub.fithub_api.infraestructure.entity.PersistenceEntity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -13,12 +14,7 @@ import java.io.Serializable;
 @NoArgsConstructor
 @Entity
 @Table(name = "perfis")
-public class Perfil  extends Auditable implements Serializable {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(nullable = false)
-    private Long id;
+public class Perfil  extends PersistenceEntity implements Serializable {
 
     @Column(nullable = false)
     private String nome;

@@ -2,6 +2,7 @@ package com.fithub.fithub_api.usuario.entity;
 
 import com.fithub.fithub_api.aula.entity.Aula;
 import com.fithub.fithub_api.infraestructure.entity.Auditable;
+import com.fithub.fithub_api.infraestructure.entity.PersistenceEntity;
 import com.fithub.fithub_api.inscricao.entity.Inscricao;
 import com.fithub.fithub_api.notificacao.entity.Notificacao;
 import com.fithub.fithub_api.perfil.entity.Perfil;
@@ -26,12 +27,8 @@ import java.util.Set;
 @NoArgsConstructor
 @Entity
 @Table(name ="usuarios")
-public class Usuario extends Auditable implements Serializable  {
+public class Usuario extends PersistenceEntity implements Serializable  {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(nullable = false)
-    private Long id;
 
     @Column(name = "username", unique = true,nullable = false,length = 50)
     private String username;
@@ -89,15 +86,4 @@ public class Usuario extends Auditable implements Serializable  {
     @Column(name = "score_total", nullable = false, columnDefinition = "int default 0")
     private int scoreTotal = 0;
 
-    @Override
-    public boolean equals(Object o) {
-        if (o == null || getClass() != o.getClass()) return false;
-        Usuario usuario = (Usuario) o;
-        return Objects.equals(id, usuario.id);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(id);
-    }
 }

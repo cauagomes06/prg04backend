@@ -2,6 +2,7 @@ package com.fithub.fithub_api.inscricao.entity;
 
 import com.fithub.fithub_api.competicao.entity.Competicao;
 import com.fithub.fithub_api.infraestructure.entity.Auditable;
+import com.fithub.fithub_api.infraestructure.entity.PersistenceEntity;
 import com.fithub.fithub_api.usuario.entity.Usuario;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -17,10 +18,8 @@ import java.time.LocalDateTime;
 @Setter
 @Table(name = "inscricoes_competicoes",
         uniqueConstraints = @UniqueConstraint(columnNames = {"usuario_id","competicao_id"})) //usuario so pode se increver uma vez na mesma competicao
-public class Inscricao extends Auditable implements Serializable {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+public class Inscricao extends PersistenceEntity implements Serializable {
+
 
     // Muitos-para-Um: Muitas inscrições para UM Usuário
     @ManyToOne(fetch = FetchType.LAZY)

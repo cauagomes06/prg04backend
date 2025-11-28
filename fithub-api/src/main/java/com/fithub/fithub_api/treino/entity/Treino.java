@@ -1,6 +1,7 @@
         package com.fithub.fithub_api.treino.entity;
 
         import com.fithub.fithub_api.infraestructure.entity.Auditable;
+        import com.fithub.fithub_api.infraestructure.entity.PersistenceEntity;
         import com.fithub.fithub_api.itemtreino.entity.ItemTreino;
         import com.fithub.fithub_api.usuario.entity.Usuario;
         import jakarta.persistence.*;
@@ -17,12 +18,8 @@
         @NoArgsConstructor
         @Table(name = "treinos")
         @Entity
-        public class Treino extends Auditable implements Serializable {
+        public class Treino extends PersistenceEntity implements Serializable {
 
-            @Id
-            @GeneratedValue(strategy = GenerationType.IDENTITY)
-            @Column(name = "treino_id")
-            private Long id;
 
             @Column(nullable = false)
             private String nome;
