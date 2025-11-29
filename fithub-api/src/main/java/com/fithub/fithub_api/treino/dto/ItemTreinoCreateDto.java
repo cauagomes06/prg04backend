@@ -1,15 +1,15 @@
-package com.fithub.fithub_api.treino.dto;
+    package com.fithub.fithub_api.treino.dto;
 
-import lombok.Getter;
-import lombok.Setter;
+    import lombok.Getter;
+    import lombok.Setter;
 
-@Getter
-@Setter
-public class ItemTreinoCreateDto {
+    @Getter
+    @Setter
+    public class ItemTreinoCreateDto {
 
-    private Long exercicioId;
-    private String repeticoes;
-    private String series;
-    private String descanso;
-    private int ordem; // para ordenar os exercicios
-}
+        private Long exercicioId;
+        private String repeticoes;
+        private String series;
+        private String descanso;
+        private int ordem; // para ordenar os exercicios
+    }

@@ -24,7 +24,8 @@ public class Reserva extends PersistenceEntity implements Serializable {
 
     // Muitas Reservas podem ser de UM Utilizador
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "usuario_id", nullable = false)
+    @JoinColumn(name = "usuario_id",
+            referencedColumnName = "id",nullable = false)
     private Usuario usuario;
 
     // Muitas Reservas podem ser para UMA Aula

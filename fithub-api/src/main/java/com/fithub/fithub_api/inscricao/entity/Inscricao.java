@@ -28,7 +28,8 @@ public class Inscricao extends PersistenceEntity implements Serializable {
 
     // Muitos-para-Um: Muitas inscrições para UMA Competição
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "competicao_id", nullable = false)
+    @JoinColumn(name = "competicao_id",
+            referencedColumnName = "id", nullable = false)
     private Competicao competicao;
 
     // O resultado/pontuacao do utilizador
