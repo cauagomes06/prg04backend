@@ -1,7 +1,7 @@
 package com.fithub.fithub_api.plano.service;
 
 import com.fithub.fithub_api.exception.EntityNotFoundException;
-import com.fithub.fithub_api.exception.PlanoUniqueViolationException;
+import com.fithub.fithub_api.plano.exception.PlanoUniqueViolationException;
 import com.fithub.fithub_api.plano.entity.Plano;
 import com.fithub.fithub_api.plano.repository.PlanoRepository;
 import com.fithub.fithub_api.usuario.entity.Usuario;
@@ -65,11 +65,18 @@ public class PlanoService implements PlanoIService {
 
        Plano planoExistente =  this.buscarPlanoById(id);
 
-       planoExistente.setNome(updateDto.getNome());
-       planoExistente.setDescricao(updateDto.getDescricao());
-       planoExistente.setPreco(updateDto.getPreco());
+       if(!planoRepository.existsByNome(updateDto.getNome())){
 
-       planoRepository.save(planoExistente);
+           planoExistente.setNome(updateDto.getNome());
+           planoExistente.setDescricao(updateDto.getDescricao());
+           planoExistente.setPreco(updateDto.getPreco());
+
+           planoRepository.save(planoExistente);
+
+       }else {
+           throw new PlanoUniqueViolationException("Plano com este nome ja existe");
+       }
+
 
        return PlanoMapper.toPlanoDto(planoExistente);
     }

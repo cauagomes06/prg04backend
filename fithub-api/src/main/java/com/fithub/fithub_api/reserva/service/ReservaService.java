@@ -3,7 +3,7 @@ package com.fithub.fithub_api.reserva.service;
 import com.fithub.fithub_api.aula.entity.Aula;
 import com.fithub.fithub_api.aula.service.AulaService;
 import com.fithub.fithub_api.exception.EntityNotFoundException;
-import com.fithub.fithub_api.exception.ReservaException;
+import com.fithub.fithub_api.reserva.exception.ReservaUniqueException;
 import com.fithub.fithub_api.reserva.entity.Reserva;
 import com.fithub.fithub_api.reserva.repository.ReservaRepository;
 import com.fithub.fithub_api.usuario.entity.Usuario;
@@ -13,7 +13,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -30,12 +29,12 @@ public class ReservaService implements ReservaIService {
 
         //verifica se o usuario ja reservou esta aula
         if(reservaRepository.existsByUsuarioIdAndAulaId(usuarioLogado.getId(), idAula)){
-            throw new ReservaException("Usuario ja reservou esta aula");
+            throw new ReservaUniqueException("Usuario ja reservou esta aula");
         }
         int qtdVagas = reservaRepository.countByAulaId(idAula);
         // verifica se tem vagas disponiveis
         if(qtdVagas >= aula.getVagasTotais()){
-            throw new ReservaException("Aula esgotada.Não há vagas disponiveis");
+            throw new ReservaUniqueException("Aula esgotada.Não há vagas disponiveis");
         }
 
         Reserva reserva = new Reserva();

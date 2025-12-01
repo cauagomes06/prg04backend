@@ -1,11 +1,22 @@
 package com.fithub.fithub_api.infraestructure.exception;
 
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
-import com.fithub.fithub_api.exception.*;
+import com.fithub.fithub_api.aula.exception.AulaConflictException;
+import com.fithub.fithub_api.exception.EntityNotFoundException;
+import com.fithub.fithub_api.exception.ErrorMessage;
+import com.fithub.fithub_api.inscricao.exception.InscricaoConflictException;
+import com.fithub.fithub_api.perfil.exception.PerfilUniqueViolationException;
+import com.fithub.fithub_api.plano.exception.PlanoUniqueViolationException;
+import com.fithub.fithub_api.reserva.exception.ReservaUniqueException;
+import com.fithub.fithub_api.usuario.exception.CpfUniqueViolationException;
+import com.fithub.fithub_api.usuario.exception.PasswordInvalidException;
+import com.fithub.fithub_api.usuario.exception.UsernameUniqueViolationException;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.AccessDeniedException;
@@ -13,53 +24,60 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.context.request.ServletWebRequest;
+import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 @RestControllerAdvice
 @Slf4j
-public class GlobalExceptionHandler {
+public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
-    // 1. Validação (@Valid)
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ErrorMessage> handleValidationErrors(
+    // Sobrescreve o método padrão para capturar erros de validação (@Valid) e customiza o retorno
+    @Override
+    protected ResponseEntity<Object> handleMethodArgumentNotValid(
             MethodArgumentNotValidException ex,
-            HttpServletRequest request) {
+            HttpHeaders headers,
+            HttpStatusCode status,
+            WebRequest request) {
 
         log.error("Erro de validação", ex);
 
         BindingResult result = ex.getBindingResult();
+        HttpServletRequest servletRequest = ((ServletWebRequest) request).getRequest();
 
-        return ResponseEntity
-                .status(HttpStatus.UNPROCESSABLE_ENTITY)
-                .body(new ErrorMessage(
-                        request,
-                        HttpStatus.UNPROCESSABLE_ENTITY,
-                        "Campo(s) inválido(s)",
-                        result
-                ));
+        ErrorMessage error = new ErrorMessage(
+                servletRequest,
+                HttpStatus.UNPROCESSABLE_ENTITY,
+                "Campo(s) inválido(s)",
+                result
+        );
+
+        return handleExceptionInternal(ex, error, headers, HttpStatus.UNPROCESSABLE_ENTITY, request);
     }
 
-
-    // 2. JSON inválido (ex: Long esperado, veio String)
-    @ExceptionHandler(HttpMessageNotReadableException.class)
-    public ResponseEntity<ErrorMessage> handleJsonParseError(
+    // Sobrescreve o método padrão para capturar JSON inválido (ex: erro de parse) e customiza a mensagem
+    @Override
+    protected ResponseEntity<Object> handleHttpMessageNotReadable(
             HttpMessageNotReadableException ex,
-            HttpServletRequest request) {
+            HttpHeaders headers,
+            HttpStatusCode status,
+            WebRequest request) {
 
         log.error("Erro ao interpretar JSON", ex);
 
         String message = "O formato dos dados enviados é inválido.";
+        HttpServletRequest servletRequest = ((ServletWebRequest) request).getRequest();
 
         if (ex.getCause() instanceof InvalidFormatException ie) {
             message = "Tipo inválido para o campo: " + ie.getValue();
         }
 
-        return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
-                .body(new ErrorMessage(request, HttpStatus.BAD_REQUEST, message));
+        ErrorMessage error = new ErrorMessage(servletRequest, HttpStatus.BAD_REQUEST, message);
+
+        return handleExceptionInternal(ex, error, headers, HttpStatus.BAD_REQUEST, request);
     }
 
-
-    // 3. Violação de integridade
+    // Captura erros de integridade do banco (ex: chaves únicas duplicadas)
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<ErrorMessage> handleDataIntegrityViolation(
             DataIntegrityViolationException ex,
@@ -78,8 +96,7 @@ public class GlobalExceptionHandler {
                 .body(new ErrorMessage(request, HttpStatus.CONFLICT, message));
     }
 
-
-    // 4. Não encontrado
+    // Captura exceção de entidade não encontrada no banco
     @ExceptionHandler(EntityNotFoundException.class)
     public ResponseEntity<ErrorMessage> handleNotFound(
             EntityNotFoundException ex,
@@ -92,13 +109,30 @@ public class GlobalExceptionHandler {
                 .body(new ErrorMessage(request, HttpStatus.NOT_FOUND, ex.getMessage()));
     }
 
-
-    // 5. Regras de negócio
+    //excecoes conflict
     @ExceptionHandler({
-            UsernameUniqueViolationException.class,
-            CpfUniqueViolationException.class,
+            PerfilUniqueViolationException.class,
             AulaConflictException.class,
             InscricaoConflictException.class,
+            ReservaUniqueException.class,
+            PlanoUniqueViolationException.class,
+            UsernameUniqueViolationException.class,
+            CpfUniqueViolationException.class,
+
+    })
+    public ResponseEntity<ErrorMessage> handleConflictRuleErrors(
+            RuntimeException ex,
+            HttpServletRequest request) {
+
+        log.error("Conflito de regra de negócio", ex);
+
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(new ErrorMessage(request, HttpStatus.CONFLICT, ex.getMessage()));
+    }
+    // Captura exceções personalizadas de regras de negócio
+    @ExceptionHandler({
+            PasswordInvalidException.class,
             IllegalArgumentException.class
     })
     public ResponseEntity<ErrorMessage> handleBusinessErrors(
@@ -112,8 +146,7 @@ public class GlobalExceptionHandler {
                 .body(new ErrorMessage(request, HttpStatus.BAD_REQUEST, ex.getMessage()));
     }
 
-
-    // 6. Segurança
+    // Captura erros de permissão de acesso (usuário logado sem permissão)
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<ErrorMessage> handleAccessDenied(
             AccessDeniedException ex,
@@ -123,12 +156,10 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity
                 .status(HttpStatus.FORBIDDEN)
-                .body(new ErrorMessage(request, HttpStatus.FORBIDDEN,
-                        "Acesso negado."));
+                .body(new ErrorMessage(request, HttpStatus.FORBIDDEN, "Acesso negado."));
     }
 
-
-    // 7. Autenticação
+    // Captura falhas na autenticação (usuário não logado ou token inválido)
     @ExceptionHandler(org.springframework.security.core.AuthenticationException.class)
     public ResponseEntity<ErrorMessage> handleAuthException(
             org.springframework.security.core.AuthenticationException ex,
@@ -138,12 +169,10 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity
                 .status(HttpStatus.UNAUTHORIZED)
-                .body(new ErrorMessage(request, HttpStatus.UNAUTHORIZED,
-                        "Falha na autenticação."));
+                .body(new ErrorMessage(request, HttpStatus.UNAUTHORIZED, "Falha na autenticação."));
     }
 
-
-    // 8. Erro genérico
+    // Captura qualquer outro erro inesperado (Genérico)
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorMessage> handleGenericError(
             Exception ex,

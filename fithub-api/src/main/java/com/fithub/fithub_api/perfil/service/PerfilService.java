@@ -1,6 +1,6 @@
 package com.fithub.fithub_api.perfil.service;
 
-import com.fithub.fithub_api.exception.PerfilUniqueViolationException;
+import com.fithub.fithub_api.perfil.exception.PerfilUniqueViolationException;
 import com.fithub.fithub_api.perfil.entity.Perfil;
 import com.fithub.fithub_api.perfil.repository.PerfilRepository;
 import com.fithub.fithub_api.usuario.repository.UsuarioRepository;
@@ -62,9 +62,15 @@ public class PerfilService  implements PerfilIService{
 
          Perfil perfilExistente = this.buscarPerfilByid(id);
 
-         perfilExistente.setNome(updateDto.getNome());
-         perfilExistente.setDescricao(updateDto.getDescricao());
-         perfilRepository.save(perfilExistente);
+         if(!perfilRepository.existsByNome(updateDto.getNome())){
+
+             perfilExistente.setNome(updateDto.getNome());
+             perfilExistente.setDescricao(updateDto.getDescricao());
+             perfilRepository.save(perfilExistente);
+
+         }else {
+             throw new PerfilUniqueViolationException("Ja existe um perfil com este nome");
+         }
 
         return PerfilMapper.toPerfilDto(perfilExistente);
     }

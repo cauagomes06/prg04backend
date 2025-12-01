@@ -2,8 +2,8 @@ package com.fithub.fithub_api.usuario.service;
 
 import com.fithub.fithub_api.aula.dto.InstrutorResponseDto;
 import com.fithub.fithub_api.exception.EntityNotFoundException;
-import com.fithub.fithub_api.exception.PasswordInvalidException;
-import com.fithub.fithub_api.exception.UsernameUniqueViolationException;
+import com.fithub.fithub_api.usuario.exception.PasswordInvalidException;
+import com.fithub.fithub_api.usuario.exception.UsernameUniqueViolationException;
 import com.fithub.fithub_api.perfil.entity.Perfil;
 import com.fithub.fithub_api.perfil.repository.PerfilRepository;
 import com.fithub.fithub_api.usuario.dto.UsuarioRankingDto;

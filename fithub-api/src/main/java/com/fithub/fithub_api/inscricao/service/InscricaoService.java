@@ -5,7 +5,7 @@ import com.fithub.fithub_api.competicao.entity.StatusCompeticao;
 import com.fithub.fithub_api.competicao.entity.TipoDeOrdenacao;
 import com.fithub.fithub_api.competicao.service.CompeticaoIService;
 import com.fithub.fithub_api.exception.EntityNotFoundException;
-import com.fithub.fithub_api.exception.InscricaoConflictException;
+import com.fithub.fithub_api.inscricao.exception.InscricaoConflictException;
 import com.fithub.fithub_api.inscricao.dto.InscricaoResponseDto;
 import com.fithub.fithub_api.inscricao.dto.ResultadoSubmitDto;
 import com.fithub.fithub_api.inscricao.entity.Inscricao;

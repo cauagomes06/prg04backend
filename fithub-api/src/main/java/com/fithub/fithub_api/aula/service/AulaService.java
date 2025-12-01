@@ -3,7 +3,7 @@ package com.fithub.fithub_api.aula.service;
 import com.fithub.fithub_api.aula.dto.ParticipanteDto;
 import com.fithub.fithub_api.aula.entity.Aula;
 import com.fithub.fithub_api.aula.repository.AulaRepository;
-import com.fithub.fithub_api.exception.AulaConflictException;
+import com.fithub.fithub_api.aula.exception.AulaConflictException;
 import com.fithub.fithub_api.exception.EntityNotFoundException;
 
 import com.fithub.fithub_api.reserva.mapper.ReservaMapper;
