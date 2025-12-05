@@ -2,6 +2,8 @@ package com.fithub.fithub_api.usuario.service;
 
 import com.fithub.fithub_api.aula.dto.InstrutorResponseDto;
 import com.fithub.fithub_api.exception.EntityNotFoundException;
+import com.fithub.fithub_api.pessoa.repository.PessoaRepository;
+import com.fithub.fithub_api.usuario.exception.CpfUniqueViolationException;
 import com.fithub.fithub_api.usuario.exception.PasswordInvalidException;
 import com.fithub.fithub_api.usuario.exception.UsernameUniqueViolationException;
 import com.fithub.fithub_api.perfil.entity.Perfil;
@@ -30,18 +32,25 @@ import java.util.List;
 public class UsuarioService implements  UsuarioIService, UserDetailsService {
 
     private final UsuarioRepository usuarioRepository;
-    private final UsuarioMapper usuarioMapper;
+    private final PessoaRepository pessoaRepository;
+
     private final PerfilRepository perfilRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public Usuario registrarUsuario(UsuarioCreateDto createDto) {
-        if (usuarioRepository.existsByUsername(createDto.getUsername())) {
-            throw new UsernameUniqueViolationException(String.format("Usuario %s já cadastrado", createDto.getUsername()));
+
+    @Transactional
+    public Usuario registrarUsuario(Usuario usuario) {
+        if (usuarioRepository.existsByUsername(usuario
+                .getUsername())) {
+            throw new UsernameUniqueViolationException(String.format("Usuario %s já cadastrado", usuario.getUsername()));
+        }
+        if(pessoaRepository.existsByCpf(usuario.getPessoa().getCpf())) {
+            throw new CpfUniqueViolationException(
+                    "Ja existe um usuario registrado com o cpf : "+usuario.getPessoa().getCpf());
         }
 
-        Usuario novoUsuario = usuarioMapper.toUsuario(createDto);
 
-        return usuarioRepository.save(novoUsuario);
+        return usuarioRepository.save(usuario);
     }
 
     @Override

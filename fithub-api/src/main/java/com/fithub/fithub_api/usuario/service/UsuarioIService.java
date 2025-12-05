@@ -10,7 +10,7 @@ import java.util.List;
 
 public interface UsuarioIService {
 
-    public Usuario registrarUsuario(@RequestBody UsuarioCreateDto createDto);
+    public Usuario registrarUsuario(Usuario usuario);
 
     Usuario editarSenha(Long id,String senhaAtual, String novaSenha,String confirmaSenha);
 

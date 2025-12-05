@@ -34,7 +34,7 @@ public class UsuarioController implements UsuarioIController {
     @PostMapping("/register")
     // Endpoint público (geralmente configurado no SecurityConfig para permitAll)
     public ResponseEntity<UsuarioResponseDto> registrarUsuario(@Valid @RequestBody UsuarioCreateDto createDto) {
-        Usuario usuarioSalvo = usuarioService.registrarUsuario(createDto);
+        Usuario usuarioSalvo = usuarioService.registrarUsuario(usuarioMapper.toUsuario(createDto));
         return ResponseEntity.status(HttpStatus.CREATED).body(usuarioMapper.toDto(usuarioSalvo));
     }
 
