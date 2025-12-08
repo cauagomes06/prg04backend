@@ -4,6 +4,8 @@ import com.fithub.fithub_api.aula.dto.InstrutorResponseDto;
 import com.fithub.fithub_api.usuario.entity.Usuario;
 
 import com.fithub.fithub_api.usuario.dto.UsuarioCreateDto;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.List;
@@ -16,7 +18,7 @@ public interface UsuarioIService {
 
     Usuario buscarPorId(Long id);
 
-    List<Usuario> buscarTodos();
+    Page<Usuario> buscarTodos(Pageable pageable);
 
     void delete(Long id);
 

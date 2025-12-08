@@ -9,6 +9,8 @@ import com.fithub.fithub_api.treino.dto.TreinoCreateDto;
 import com.fithub.fithub_api.treino.mapper.TreinoMapper;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -21,12 +23,12 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/treinos")
 @RequiredArgsConstructor
-public class TreinoController implements TreinoIController{
+public class TreinoController {
 
     private final TreinoService treinoService;
     private final UsuarioService usuarioService; // Para buscar a entidade Usuario
 
-    @Override
+
     @PostMapping("/register")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<TreinoResponseDto> criar(
@@ -37,7 +39,7 @@ public class TreinoController implements TreinoIController{
         Treino treinoSalvo = treinoService.criarTreino(dto, usuarioLogado);
         return ResponseEntity.status(HttpStatus.CREATED).body(TreinoMapper.toDto(treinoSalvo));
     }
-    @Override
+
     @PutMapping("update/{id}")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<TreinoResponseDto> atualizar(
@@ -50,7 +52,7 @@ public class TreinoController implements TreinoIController{
 
          return ResponseEntity.status(HttpStatus.OK).body(TreinoMapper.toDto(treinoAtualizado));
     }
-    @Override
+
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/{id}")
     public ResponseEntity<TreinoResponseDto> buscarPorId(@PathVariable Long id){
@@ -58,6 +60,7 @@ public class TreinoController implements TreinoIController{
         Treino treino =  treinoService.buscarTreinoPorId(id);
         return ResponseEntity.ok().body(TreinoMapper.toDto(treino));
     }
+
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<Void> deletar(
             @PathVariable Long id,
@@ -69,18 +72,24 @@ public class TreinoController implements TreinoIController{
     }
     @GetMapping("/buscar")
     @PreAuthorize("isAuthenticated()")
-     public ResponseEntity<List<TreinoResponseDto>> buscarTodosTreinosPublicos(){
+     public ResponseEntity<Page<TreinoResponseDto>> buscarTodosTreinosPublicos(Pageable pageable) {
 
-       List<Treino> treinos =  treinoService.buscarTodosTreinosPublicos()   ;
-        return ResponseEntity.ok().body(TreinoMapper.toListDto(treinos));
+       Page<Treino> treinos =  treinoService.buscarTodosTreinosPublicos(pageable);
+
+       Page<TreinoResponseDto> responseDtoPage = treinos.map(TreinoMapper::toDto);
+        return ResponseEntity.ok().body(responseDtoPage);
      }
+
     @PreAuthorize("isAuthenticated()")
     @GetMapping
-    public ResponseEntity<List<TreinoResponseDto>> buscarTodosTreinos(){
+    public ResponseEntity<Page<TreinoResponseDto>> buscarTodosTreinos(Pageable pageable){
 
-        List<Treino> treinos =  treinoService.buscarTodos()   ;
-        return ResponseEntity.ok().body(TreinoMapper.toListDto(treinos));
+        Page<Treino> treinos =  treinoService.buscarTodos(pageable);
+
+        Page <TreinoResponseDto> pageableDto = treinos.map(TreinoMapper::toDto);
+        return ResponseEntity.ok().body(pageableDto);
     }
+
     @PreAuthorize("hasAnyRole('ADMIN', 'PERSONAL')")
     @PatchMapping("/{id}/publicar")
     public ResponseEntity<TreinoResponseDto> publicar(

@@ -12,6 +12,8 @@ import com.fithub.fithub_api.treino.dto.ItemTreinoCreateDto;
 import com.fithub.fithub_api.treino.dto.TreinoCreateDto;
 import com.fithub.fithub_api.treino.mapper.TreinoMapper;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -70,6 +72,7 @@ public class TreinoService  implements TreinoIService{
         return treinoRepository.save(treino);
     }
 
+    @Override
     @Transactional
     public void deletarTreino(Long idTreino, Usuario usuarioLogado) {
         Treino treino = buscarTreinoPorId(idTreino);
@@ -92,9 +95,9 @@ public class TreinoService  implements TreinoIService{
 
     @Override
     @Transactional(readOnly = true)
-    public List<Treino> buscarTodosTreinosPublicos() {
+    public Page<Treino> buscarTodosTreinosPublicos(Pageable pageable) {
 
-        return treinoRepository.findAllByStatus(StatusTreino.PUBLICO);
+        return treinoRepository.findAllByStatus(StatusTreino.PUBLICO,pageable);
     }
 
     @Override
@@ -134,8 +137,9 @@ public class TreinoService  implements TreinoIService{
     }
 
     @Override
-    public List<Treino> buscarTodos() {
-        return treinoRepository.findAll();
+    @Transactional(readOnly = true)
+    public Page<Treino> buscarTodos(Pageable pageable) {
+        return treinoRepository.findAll(pageable);
     }
 
     @Transactional

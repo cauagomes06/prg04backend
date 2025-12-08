@@ -14,6 +14,8 @@ import com.fithub.fithub_api.usuario.repository.UsuarioRepository;
 import com.fithub.fithub_api.usuario.dto.UsuarioCreateDto;
 import com.fithub.fithub_api.usuario.mapper.UsuarioMapper;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
@@ -78,9 +80,9 @@ public class UsuarioService implements  UsuarioIService, UserDetailsService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<Usuario> buscarTodos() {
+    public Page<Usuario> buscarTodos(Pageable pageable) {
 
-        return usuarioRepository.findAll();
+        return usuarioRepository.findAll(pageable);
     }
 
     @Override

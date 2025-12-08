@@ -11,6 +11,8 @@ import com.fithub.fithub_api.usuario.dto.UsuarioSenhaDto;
 import com.fithub.fithub_api.usuario.mapper.UsuarioMapper;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -24,13 +26,13 @@ import java.util.Map;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/usuarios")
-public class UsuarioController implements UsuarioIController {
+public class UsuarioController  {
 
     private final UsuarioService usuarioService;
     private final UsuarioMapper usuarioMapper;
     private final PessoaService pessoaService;
 
-    @Override
+
     @PostMapping("/register")
     // Endpoint público (geralmente configurado no SecurityConfig para permitAll)
     public ResponseEntity<UsuarioResponseDto> registrarUsuario(@Valid @RequestBody UsuarioCreateDto createDto) {
@@ -38,15 +40,18 @@ public class UsuarioController implements UsuarioIController {
         return ResponseEntity.status(HttpStatus.CREATED).body(usuarioMapper.toDto(usuarioSalvo));
     }
 
-    @Override
+
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')") // 🔒 MELHORIA: Só admin lista todos
-    public ResponseEntity<List<UsuarioResponseDto>> buscaTodos(){
-        List<Usuario> usuarios = usuarioService.buscarTodos();
-        return ResponseEntity.ok(usuarioMapper.toListDto(usuarios));
+    public ResponseEntity<Page<UsuarioResponseDto>> buscaTodos(Pageable pageable){
+
+        Page<Usuario> usuarioPage =usuarioService.buscarTodos(pageable);
+
+        Page<UsuarioResponseDto> responseDtoPage = usuarioPage.map(usuarioMapper::toDto);
+        return ResponseEntity.ok(responseDtoPage);
     }
 
-    @Override
+
     @GetMapping("/{id}")
     // 🔒 MELHORIA: Só Admin ou o próprio usuário podem ver os detalhes completos por ID
     // Obs: Isso exige que o Spring Security consiga ler o ID do principal, ou você confia no Service.
@@ -57,7 +62,7 @@ public class UsuarioController implements UsuarioIController {
         return ResponseEntity.ok(usuarioMapper.toDto(user));
     }
 
-    @Override
+
     @DeleteMapping("/delete/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<UsuarioResponseDto> deleteUsuario(@PathVariable Long id) {
@@ -65,7 +70,7 @@ public class UsuarioController implements UsuarioIController {
         return ResponseEntity.noContent().build();
     }
 
-    @Override
+
     @PutMapping("/update/senha/{id}")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<Void> updateSenha(@PathVariable Long id,
@@ -83,7 +88,7 @@ public class UsuarioController implements UsuarioIController {
         return ResponseEntity.noContent().build();
     }
 
-    @Override
+
     @GetMapping("/ranking")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<List<UsuarioRankingDto>> getRankingGeral() {
@@ -91,7 +96,7 @@ public class UsuarioController implements UsuarioIController {
         return ResponseEntity.ok(ranking);
     }
 
-    @Override
+
     @PutMapping("/me/dados-pessoais")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<UsuarioResponseDto> atualizarDadosPessoais(
@@ -107,7 +112,7 @@ public class UsuarioController implements UsuarioIController {
         return ResponseEntity.ok(usuarioMapper.toDto(usuarioLogado));
     }
 
-    @Override
+
     @PatchMapping("/me/foto")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<Void> atualizarFotoPerfil(
@@ -121,7 +126,7 @@ public class UsuarioController implements UsuarioIController {
         return ResponseEntity.noContent().build();
     }
 
-    @Override
+
     @PatchMapping("/{id}/alterar-perfil")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> atualizarPerfil(
@@ -132,7 +137,7 @@ public class UsuarioController implements UsuarioIController {
         return ResponseEntity.noContent().build();
     }
 
-    @Override
+
     @GetMapping("/me")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<UsuarioResponseDto> getUsuarioLogado(@AuthenticationPrincipal UserDetails userDetails) {

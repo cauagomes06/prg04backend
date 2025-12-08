@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fithub.fithub_api.auth.dto.LoginRequestDto;
 import com.fithub.fithub_api.pessoa.dto.PessoaCreateDto;
 import com.fithub.fithub_api.usuario.dto.UsuarioCreateDto;
+import com.fithub.fithub_api.usuario.mapper.UsuarioMapper;
 import com.fithub.fithub_api.usuario.repository.UsuarioRepository;
 import com.fithub.fithub_api.usuario.service.UsuarioService;
 import org.junit.jupiter.api.BeforeEach;
@@ -34,6 +35,9 @@ public class SecurityIntegrationTest {
 
     @Autowired
     private UsuarioRepository usuarioRepository; // Para verificar se já existem
+
+    @Autowired
+    private UsuarioMapper usuarioMapper;
 
     // Tokens para usar nos testes
     private String tokenAdmin;
@@ -71,7 +75,7 @@ public class SecurityIntegrationTest {
         pessoa.setTelefone("999999999");
         dto.setPessoa(pessoa);
 
-        usuarioService.registrarUsuario(dto);
+        usuarioService.registrarUsuario(usuarioMapper.toUsuario(dto));
     }
 
     /**

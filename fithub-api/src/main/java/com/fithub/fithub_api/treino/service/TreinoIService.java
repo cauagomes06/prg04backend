@@ -3,6 +3,8 @@ package com.fithub.fithub_api.treino.service;
 import com.fithub.fithub_api.treino.entity.Treino;
 import com.fithub.fithub_api.usuario.entity.Usuario;
 import com.fithub.fithub_api.treino.dto.TreinoCreateDto;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
@@ -16,7 +18,7 @@ public interface TreinoIService {
 
     public Treino buscarTreinoPorId(Long id);
 
-    public List<Treino> buscarTodosTreinosPublicos();
+    public Page<Treino> buscarTodosTreinosPublicos(Pageable pageable);
 
     public Treino clonarTreino(Long treinoId, Usuario usuarioLogado);
 
@@ -24,5 +26,5 @@ public interface TreinoIService {
 
     List<Treino> buscarPorUsuarioId(Long id);
 
-    List<Treino> buscarTodos();
+    Page<Treino> buscarTodos(Pageable pageable);
 }
