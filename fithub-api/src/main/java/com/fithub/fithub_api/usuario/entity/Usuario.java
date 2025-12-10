@@ -1,7 +1,6 @@
 package com.fithub.fithub_api.usuario.entity;
 
 import com.fithub.fithub_api.aula.entity.Aula;
-import com.fithub.fithub_api.infraestructure.entity.Auditable;
 import com.fithub.fithub_api.infraestructure.entity.PersistenceEntity;
 import com.fithub.fithub_api.inscricao.entity.Inscricao;
 import com.fithub.fithub_api.notificacao.entity.Notificacao;
@@ -11,9 +10,8 @@ import com.fithub.fithub_api.plano.entity.Plano;
 import com.fithub.fithub_api.reserva.entity.Reserva;
 import com.fithub.fithub_api.treino.entity.Treino;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 import java.io.Serializable;
 import java.time.LocalDate;
@@ -25,6 +23,8 @@ import java.util.Set;
 @Setter
 @Getter
 @NoArgsConstructor
+@AllArgsConstructor
+@SuperBuilder
 @Entity
 @Table(name ="usuarios")
 public class Usuario extends PersistenceEntity implements Serializable  {

@@ -5,9 +5,8 @@
         import com.fithub.fithub_api.itemtreino.entity.ItemTreino;
         import com.fithub.fithub_api.usuario.entity.Usuario;
         import jakarta.persistence.*;
-        import lombok.Getter;
-        import lombok.NoArgsConstructor;
-        import lombok.Setter;
+        import lombok.*;
+        import lombok.experimental.SuperBuilder;
 
         import java.io.Serializable;
         import java.util.ArrayList;
@@ -15,6 +14,8 @@
 
         @Getter
         @Setter
+        @SuperBuilder
+        @AllArgsConstructor
         @NoArgsConstructor
         @Table(name = "treinos")
         @Entity

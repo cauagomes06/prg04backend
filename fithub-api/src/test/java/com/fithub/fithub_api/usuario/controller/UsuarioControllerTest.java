@@ -10,6 +10,7 @@ import com.fithub.fithub_api.usuario.service.UsuarioService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.data.jpa.mapping.JpaMetamodelMappingContext;
@@ -21,6 +22,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+@DataJpaTest
 @WebMvcTest(UsuarioController.class)
 @AutoConfigureMockMvc(addFilters = false)
 class UsuarioControllerTest {
@@ -37,7 +39,6 @@ class UsuarioControllerTest {
     @MockitoBean private PessoaService pessoaService;
     @MockitoBean private JwtTokenService jwtTokenService;
 
-    // --- A CORREÇÃO ESTÁ AQUI ---
     // Mockamos o contexto do JPA para satisfazer o @EnableJpaAuditing
     @MockitoBean
     private JpaMetamodelMappingContext jpaMappingContext;

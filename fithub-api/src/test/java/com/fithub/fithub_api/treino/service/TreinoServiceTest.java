@@ -34,23 +34,31 @@ class TreinoServiceTest {
     @InjectMocks
     private TreinoService treinoService;
 
+    // Entidade auxiliar para o perfil (pode ser mockada ou construída)
+    private final Perfil perfilCliente = Perfil.builder().nome("ROLE_CLIENTE").build();
+
     @Test
     @DisplayName("Deve lançar AccessDeniedException ao tentar apagar treino de outro utilizador")
     void naoDeveApagarTreinoDeOutro() {
-        // 1. Preparar Dados (Mocks)
-        Usuario dono = new Usuario();
-        dono.setId(1L);
-        Perfil perfilCliente = new Perfil();
-        perfilCliente.setNome("ROLE_CLIENTE");
-        dono.setPerfil(perfilCliente);
+        // 1. Preparar Dados (Mocks) usando o Builder
 
-        Usuario invasor = new Usuario();
-        invasor.setId(2L);
-        invasor.setPerfil(perfilCliente);
+        // Dono do treino (ID 1)
+        Usuario dono = Usuario.builder()
+                .id(1L)
+                .perfil(perfilCliente)
+                .build();
 
-        Treino treino = new Treino();
-        treino.setId(10L);
-        treino.setCriador(dono);
+        // Usuário invasor (ID 2)
+        Usuario invasor = Usuario.builder()
+                .id(2L)
+                .perfil(perfilCliente)
+                .build();
+
+        // Treino criado pelo Dono
+        Treino treino = Treino.builder()
+                .id(10L)
+                .criador(dono)
+                .build();
 
         // Quando o repository procurar pelo ID 10, retorna este treino
         when(treinoRepository.findById(10L)).thenReturn(Optional.of(treino));
@@ -67,21 +75,31 @@ class TreinoServiceTest {
     @Test
     @DisplayName("Deve criar treino com sucesso")
     void deveCriarTreino() {
-        Usuario usuario = new Usuario();
-        usuario.setId(1L);
+        // Usuário que cria o treino
+        Usuario usuario = Usuario.builder()
+                .id(1L)
+                .build();
 
-        TreinoCreateDto dto = new TreinoCreateDto();
-        dto.setNome("Treino A");
-        dto.setDescricao("Hipertrofia");
-        dto.setItems(new ArrayList<>()); // Sem itens para simplificar
+        // DTO de criação de Treino
+        TreinoCreateDto dto = TreinoCreateDto.builder()
+                .nome("Treino A")
+                .descricao("Hipertrofia")
+                .items(new ArrayList<>()) // Sem itens para simplificar
+                .build();
 
+        // Mock do repositório: Retorna o mesmo objeto que foi passado
         when(treinoRepository.save(any(Treino.class))).thenAnswer(i -> i.getArguments()[0]);
 
+        // Ação
         Treino resultado = treinoService.criarTreino(dto, usuario);
 
+        // Verificação
         assertNotNull(resultado);
         assertEquals("Treino A", resultado.getNome());
         assertEquals(StatusTreino.PRIVADO, resultado.getStatus());
         assertEquals(usuario, resultado.getCriador());
+
+        // Garante que o save foi chamado
+        verify(treinoRepository, times(1)).save(any(Treino.class));
     }
 }

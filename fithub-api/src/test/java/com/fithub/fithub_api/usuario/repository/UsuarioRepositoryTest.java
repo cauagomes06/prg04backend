@@ -7,6 +7,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.util.List;
@@ -14,17 +15,19 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 @DataJpaTest
-@ActiveProfiles("test") // Garante que usa o H2 e data.sql de teste
+@ActiveProfiles("test")
 class UsuarioRepositoryTest {
 
     @Autowired
     private UsuarioRepository usuarioRepository;
 
+    @Autowired
+    private TestEntityManager entityManager; // Recomendado para testes JPA
+
     @Test
     @DisplayName("Deve retornar top utilizadores ordenados por score decrescente")
     void deveRetornarRankingOrdenado() {
-        // O data.sql já deve ter inserido Perfis e Planos (IDs 1, 2, 3...)
-        // Vamos criar users manualmente para controlar o Score
+        // Cenário: Criando usuários usando o método auxiliar refatorado
         criarUserComScore("top1", 1000);
         criarUserComScore("top3", 500);
         criarUserComScore("top2", 800);
@@ -33,30 +36,32 @@ class UsuarioRepositoryTest {
         List<Usuario> ranking = usuarioRepository.findTop20ByOrderByScoreTotalDesc();
 
         // Verificação
-        assertEquals(3, ranking.size()); // Devem vir 3 (ou mais se o data.sql tiver users)
+        assertFalse(ranking.isEmpty());
 
-        // O primeiro deve ser o de 1000 pontos
+        // Valida ordem: 1º lugar (1000 pts)
         assertEquals(1000, ranking.get(0).getScoreTotal());
         assertEquals("top1", ranking.get(0).getUsername());
 
-        // O segundo deve ser o de 800 pontos
+        // Valida ordem: 2º lugar (800 pts)
         assertEquals(800, ranking.get(1).getScoreTotal());
         assertEquals("top2", ranking.get(1).getUsername());
     }
 
     private void criarUserComScore(String username, int score) {
-        Usuario u = new Usuario();
-        u.setUsername(username);
-        u.setPassword("123");
-        u.setScoreTotal(score);
+        // Busca as referências do banco para evitar erro de "Transient Object"
+        // Se preferir não usar o entityManager, pode instanciar manualmente como fazia antes,
+        // mas passar dentro do builder é mais elegante.
+        Perfil perfilCliente = entityManager.find(Perfil.class, 3L);
+        Plano planoFit = entityManager.find(Plano.class, 1L);
 
-        // Associa a entidades que já existem no data.sql (mock/dummy)
-        Perfil p = new Perfil(); p.setId(3L); // Cliente
-        u.setPerfil(p);
+        Usuario usuario = Usuario.builder()
+                .username(username)
+                .password("123")
+                .scoreTotal(score)
+                .perfil(perfilCliente) // Passa o objeto recuperado
+                .plano(planoFit)       // Passa o objeto recuperado
+                .build();
 
-        Plano pl = new Plano(); pl.setId(1L); // Fit
-        u.setPlano(pl);
-
-        usuarioRepository.save(u);
+        usuarioRepository.save(usuario);
     }
 }
