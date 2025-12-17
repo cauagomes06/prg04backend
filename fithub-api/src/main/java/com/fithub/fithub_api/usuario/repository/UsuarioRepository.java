@@ -14,6 +14,7 @@ import java.util.Optional;
 
 public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
 
+
     boolean existsByPlanoId(Long idPlano);
 
     boolean existsByUsername(String username);

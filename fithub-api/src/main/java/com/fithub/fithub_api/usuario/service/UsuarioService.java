@@ -3,6 +3,8 @@ package com.fithub.fithub_api.usuario.service;
 import com.fithub.fithub_api.aula.dto.InstrutorResponseDto;
 import com.fithub.fithub_api.exception.EntityNotFoundException;
 import com.fithub.fithub_api.pessoa.repository.PessoaRepository;
+import com.fithub.fithub_api.plano.entity.Plano;
+import com.fithub.fithub_api.plano.repository.PlanoRepository;
 import com.fithub.fithub_api.usuario.exception.CpfUniqueViolationException;
 import com.fithub.fithub_api.usuario.exception.PasswordInvalidException;
 import com.fithub.fithub_api.usuario.exception.UsernameUniqueViolationException;
@@ -26,6 +28,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,6 +38,7 @@ public class UsuarioService implements  UsuarioIService, UserDetailsService {
 
     private final UsuarioRepository usuarioRepository;
     private final PessoaRepository pessoaRepository;
+    private final PlanoRepository planoRepository;
 
     private final PerfilRepository perfilRepository;
     private final PasswordEncoder passwordEncoder;
@@ -164,6 +168,26 @@ public class UsuarioService implements  UsuarioIService, UserDetailsService {
     public void atualizarFoto(Long id, String novaUrl) {
         Usuario usuario = buscarPorId(id);
         usuario.setFotoUrl(novaUrl);
+        usuarioRepository.save(usuario);
+    }
+
+    @Override
+    @Transactional
+    public void atualizarPlanoUsuario(Long usuarioId, Long novoPlanoId) {
+        // 1. Busca o usuário
+        Usuario usuario = usuarioRepository.findById(usuarioId)
+                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+
+        // 2. Busca o novo plano
+        Plano novoPlano = planoRepository.findById(novoPlanoId)
+                .orElseThrow(() -> new RuntimeException("Plano não encontrado"));
+
+        // 3. Atualiza e salva
+        usuario.setPlano(novoPlano);
+
+        //Atualizar data de expiração, status, etc.
+         usuario.setDataVencimentoPlano(LocalDate.now().plusDays(30));
+
         usuarioRepository.save(usuario);
     }
 }

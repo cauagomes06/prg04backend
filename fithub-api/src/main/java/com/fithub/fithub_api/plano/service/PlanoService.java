@@ -4,6 +4,7 @@ import com.fithub.fithub_api.exception.EntityNotFoundException;
 import com.fithub.fithub_api.plano.exception.PlanoUniqueViolationException;
 import com.fithub.fithub_api.plano.entity.Plano;
 import com.fithub.fithub_api.plano.repository.PlanoRepository;
+import com.fithub.fithub_api.usuario.entity.StatusPlano;
 import com.fithub.fithub_api.usuario.entity.Usuario;
 import com.fithub.fithub_api.usuario.repository.UsuarioRepository;
 import com.fithub.fithub_api.plano.dto.PlanoResponseDto;
@@ -14,6 +15,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Service
@@ -97,6 +99,29 @@ public class PlanoService implements PlanoIService {
 
         // Salva a alteração
         usuarioRepository.save(usuario);
+    }
+
+    @Transactional
+    public void ativarPlano(Long usuarioId, Long planoId) {
+        // 1. Busca o utilizador e o novo plano
+        Usuario usuario = usuarioRepository.findById(usuarioId)
+                .orElseThrow(() -> new EntityNotFoundException("Usuário não encontrado para ativação."));
+
+        Plano novoPlano = planoRepository.findById(planoId)
+                .orElseThrow(() -> new EntityNotFoundException("Plano pago não encontrado no sistema."));
+
+        // 2. Atualiza os dados
+        usuario.setPlano(novoPlano);
+        usuario.setStatusPlano(StatusPlano.ATIVO);
+
+        // Define vencimento para daqui a 30 dias
+        usuario.setDataVencimentoPlano(LocalDate.now().plusDays(30));
+
+        // 3. Salva
+        usuarioRepository.save(usuario);
+
+        //  Log para debug
+        System.out.println("PLANO ATIVADO: Usuário " + usuario.getUsername() + " agora é " + novoPlano.getNome());
     }
 
 }

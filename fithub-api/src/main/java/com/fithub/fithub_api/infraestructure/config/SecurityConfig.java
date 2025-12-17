@@ -44,8 +44,13 @@ public class SecurityConfig {
                         // Autenticação e Registo
                         .requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/usuarios/register").permitAll()
-
+                        .requestMatchers(HttpMethod.POST, "/api/webhooks/mercadopago").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/planos/buscar").permitAll()
+                        // 2. Libera a tela de retorno para o usuário não tomar 403 na cara (É GET)
+                        .requestMatchers("/api/pagamentos/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/sucesso").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/falha").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/pendente").permitAll()
                         // Recursos Estáticos e Documentação
                         .requestMatchers("/imagens/**").permitAll()
                         .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
@@ -61,9 +66,9 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList("*")); // Em produção, restrinja isso
+        configuration.setAllowedOrigins(Arrays.asList("*"));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
-        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "x-auth-token"));
+        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "x-auth-token","ngrok-skip-browser-warning"));
         configuration.setExposedHeaders(List.of("x-auth-token"));
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);

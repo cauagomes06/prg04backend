@@ -29,4 +29,6 @@ public interface UsuarioIService {
     void atualizarFoto(Long id, String novaUrl);
 
     void alterarPerfilUsuario(Long usuarioId, Long novoPerfilId);
+
+    void atualizarPlanoUsuario(Long usuarioId, Long novoPlanoId);
 }

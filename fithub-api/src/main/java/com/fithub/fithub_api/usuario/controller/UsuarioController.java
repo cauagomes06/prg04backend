@@ -2,12 +2,9 @@ package com.fithub.fithub_api.usuario.controller;
 
 import com.fithub.fithub_api.pessoa.dto.PessoaUpdateDto;
 import com.fithub.fithub_api.pessoa.service.PessoaService;
-import com.fithub.fithub_api.usuario.dto.UsuarioRankingDto;
+import com.fithub.fithub_api.usuario.dto.*;
 import com.fithub.fithub_api.usuario.entity.Usuario;
 import com.fithub.fithub_api.usuario.service.UsuarioService;
-import com.fithub.fithub_api.usuario.dto.UsuarioCreateDto;
-import com.fithub.fithub_api.usuario.dto.UsuarioResponseDto;
-import com.fithub.fithub_api.usuario.dto.UsuarioSenhaDto;
 import com.fithub.fithub_api.usuario.mapper.UsuarioMapper;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -16,7 +13,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
@@ -147,12 +146,30 @@ public class UsuarioController  {
         return ResponseEntity.ok(usuarioMapper.toDto(usuario));
     }
 
+    @PatchMapping("/alterar-plano")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<String> alterarPlano(@RequestBody AlterarPlanoDto dto) {
+
+        // Pegar o usuário logado do contexto de segurança
+        Long usuarioLogadoId = recuperarIdUsuarioLogado();
+
+        usuarioService.atualizarPlanoUsuario(usuarioLogadoId, dto.getPlanoId());
+
+        return ResponseEntity.ok("Plano atualizado com sucesso!");
+    }
+
+
+
     // --- MÉTODOS AUXILIARES ---
 
     private Usuario getUsuarioEntity(UserDetails userDetails) {
         return usuarioService.buscarPorUsername(userDetails.getUsername());
     }
-
+    private Long recuperarIdUsuarioLogado() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Usuario usuario = (Usuario) authentication.getPrincipal();
+        return usuario.getId();
+    }
     private boolean isUserAdmin(Usuario usuario) {
         return usuario.getPerfil().getNome().equals("ROLE_ADMIN");
     }

@@ -56,7 +56,7 @@ public class CompeticaoSchedulerService {
             List<Inscricao> ranking = inscricaoService.buscarInscricoesPorCompeticaoOrdenado(competicao.getId());
 
             if (!ranking.isEmpty()) {
-                // --- NOVA LÓGICA: PREMIAR TOP 5 ---
+                // ---  PREMIAR TOP 5 ---
 
                 // Percentagens para 1º, 2º, 3º, 4º, 5º
                 double[] distribuicao = {1.0, 0.7, 0.5, 0.3, 0.1};
