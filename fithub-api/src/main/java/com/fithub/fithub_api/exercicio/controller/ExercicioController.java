@@ -11,6 +11,8 @@ import com.fithub.fithub_api.exercicio.service.ExercicioService;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -21,12 +23,12 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/exercicios")
-public class ExercicioController implements ExercicioIController {
+public class ExercicioController  {
 
     private final ExercicioService exercicioService;
 
 
-    @Override
+
     @PostMapping("/register")
     @PreAuthorize("hasAnyRole('ADMIN', 'PERSONAL')")
     public ResponseEntity<ExercicioResponseDto> registrar(@Valid @RequestBody ExercicioCreateDto exercicioCreateDto) {
@@ -38,7 +40,6 @@ public class ExercicioController implements ExercicioIController {
 
 
         @PutMapping("/update/{id}")
-        @Override
         @PreAuthorize("hasAnyRole('ADMIN', 'PERSONAL')")
     public ResponseEntity<ExercicioResponseDto> editar(@PathVariable Long id,
                                                        @Valid @RequestBody ExercicioCreateDto exercicioCreateDto) { //reutilizei o createDto ao inves de criar um updateDto
@@ -48,7 +49,6 @@ public class ExercicioController implements ExercicioIController {
     }
 
     @DeleteMapping("/delete/{id}")
-    @Override
     @PreAuthorize("hasAnyRole('ADMIN', 'PERSONAL')")
     public ResponseEntity<ExercicioResponseDto> excluir(@PathVariable Long id) {
 
@@ -56,17 +56,17 @@ public class ExercicioController implements ExercicioIController {
 
         return ResponseEntity.noContent().build();
     }
-    @Override
     @GetMapping("/buscar")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<List<ExercicioResponseDto>> buscarTodos() {
+    public ResponseEntity<Page<ExercicioResponseDto>> buscarTodos(Pageable pageable) {
 
-      List<Exercicio> exercicios = exercicioService.buscarTodos();
+      Page<Exercicio> exercicios = exercicioService.buscarTodos(pageable);
 
-        return ResponseEntity.ok().body(ExercicioMapper.toExercicioListDto(exercicios));
+      Page<ExercicioResponseDto> pageExercicioDto = exercicios.map(ExercicioMapper::toExercicioDto);
+
+        return ResponseEntity.ok().body(pageExercicioDto);
     }
 
-    @Override
     @GetMapping(value ="/buscar",params = "grupoMuscular")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<List<ExercicioResponseDto>> buscarPorGrupoMuscular(

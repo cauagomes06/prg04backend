@@ -2,6 +2,8 @@ package com.fithub.fithub_api.exercicio.service;
 
 import com.fithub.fithub_api.exercicio.entity.Exercicio;
 import com.fithub.fithub_api.exercicio.dto.ExercicioCreateDto;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
@@ -15,7 +17,7 @@ public interface ExercicioIService {
 
     public  Exercicio editarExercicio(Long id,ExercicioCreateDto updateDto);
 
-    List<Exercicio> buscarTodos();
+    Page<Exercicio> buscarTodos(Pageable pageable);
 
     List<Exercicio> buscarPorGrupoMuscular(String nomeMusculo);
 }

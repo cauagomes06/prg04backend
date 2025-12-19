@@ -7,6 +7,8 @@ import com.fithub.fithub_api.itemtreino.repository.ItemTreinoRepository;
 import com.fithub.fithub_api.exercicio.dto.ExercicioCreateDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -71,8 +73,8 @@ public class ExercicioService implements ExercicioIService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<Exercicio> buscarTodos() {
-        return exercicoRepository.findAll();
+    public Page<Exercicio> buscarTodos(Pageable pageable) {
+        return exercicoRepository.findAll(pageable);
     }
 
     @Override
