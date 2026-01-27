@@ -24,52 +24,48 @@ public class ExercicioService implements ExercicioIService {
     @Override
     @Transactional(readOnly = true)
     public Exercicio buscarPorId(Long id) {
-        return exercicoRepository.findById(id).orElseThrow
-                (()-> new EntityNotFoundException("Exercico com ID : " +id+ "%d nao encontrado. ") );
+        return exercicoRepository.findById(id).orElseThrow(
+                () -> new EntityNotFoundException("Exercicio com ID: " + id + " nao encontrado.")
+        );
     }
 
     @Override
     @Transactional
     public Exercicio criarExercicio(Exercicio exercicio) {
-
         try {
             return exercicoRepository.save(exercicio);
         } catch (DataIntegrityViolationException e) {
-            throw new RuntimeException("Exercicio com o nome "+ exercicio.getNome()+"ja existe");
+            throw new RuntimeException("Exercicio com o nome " + exercicio.getNome() + " ja existe");
         }
     }
 
     @Override
     @Transactional
     public void deletarExercicio(Long id) {
+        Exercicio exercicio = buscarPorId(id);
 
-      Exercicio exercicio =  buscarPorId(id);
-
-      if (itemTreinoRepository.existsByExercicioId(exercicio.getId())) {
-          throw new IllegalStateException("ainda existem treinos com este exercicio");
-      }
-      exercicoRepository.delete(exercicio);
+        if (itemTreinoRepository.existsByExercicioId(exercicio.getId())) {
+            throw new IllegalStateException("Ainda existem treinos com este exercicio");
+        }
+        exercicoRepository.delete(exercicio);
     }
 
     @Override
     @Transactional
-    public Exercicio editarExercicio(Long id,ExercicioCreateDto updateDto) {//reutilizando o createDto aqui
+    public Exercicio editarExercicio(Long id, ExercicioCreateDto updateDto) {
+        Exercicio exercicioExistente = this.buscarPorId(id);
 
-            Exercicio exercicioExistente =  this.buscarPorId(id);
+        exercicioExistente.setNome(updateDto.getNome());
+        exercicioExistente.setGrupoMuscular(updateDto.getGrupoMuscular());
+        exercicioExistente.setDescricao(updateDto.getDescricao());
+        exercicioExistente.setUrlVideo(updateDto.getUrlVideo());
 
-            exercicioExistente.setNome(updateDto.getNome());
-            exercicioExistente.setGrupoMuscular(updateDto.getGrupoMuscular());
-            exercicioExistente.setDescricao(updateDto.getDescricao());
-            exercicioExistente.setUrlVideo(updateDto.getUrlVideo());
-
-            try {
-                return exercicoRepository.save(exercicioExistente);
-            }catch (DataIntegrityViolationException e) {
-                throw new RuntimeException("Erro ao atualizar: nome de exercicio ja existe "+updateDto.getNome());
-            }
-
+        try {
+            return exercicoRepository.save(exercicioExistente);
+        } catch (DataIntegrityViolationException e) {
+            throw new RuntimeException("Erro ao atualizar: nome de exercicio ja existe " + updateDto.getNome());
+        }
     }
-
 
     @Override
     @Transactional(readOnly = true)
@@ -79,8 +75,15 @@ public class ExercicioService implements ExercicioIService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<Exercicio> buscarPorGrupoMuscular(String nomeMusculo) {
+    public Page<Exercicio> buscarPorNome(String nome, Pageable pageable) {
+        // Repassa para o repositório buscando por parte do nome
+        return exercicoRepository.findByNomeContainingIgnoreCase(nome, pageable);
+    }
 
-        return exercicoRepository.findByGrupoMuscularContainingIgnoreCase(nomeMusculo);
+    @Override
+    @Transactional(readOnly = true)
+    public Page<Exercicio> buscarPorGrupoMuscular(String nomeMusculo, Pageable pageable) {
+
+        return exercicoRepository.findByGrupoMuscularContainingIgnoreCase(nomeMusculo, pageable);
     }
 }

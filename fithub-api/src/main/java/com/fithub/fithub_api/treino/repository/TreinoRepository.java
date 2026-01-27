@@ -6,8 +6,11 @@ import com.fithub.fithub_api.usuario.entity.Usuario;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface TreinoRepository extends JpaRepository<Treino,Long> {
 
@@ -19,5 +22,18 @@ public interface TreinoRepository extends JpaRepository<Treino,Long> {
 
     List<Treino> findByStatus (StatusTreino status);
 
-    List<Treino> findByCriador_Id(Long id);
+    // CORREÇÃO: Usando 't.itensTreino'
+    @Query("SELECT t FROM Treino t " +
+            "LEFT JOIN FETCH t.itensTreino i " +
+            "LEFT JOIN FETCH i.exercicio e " +
+            "WHERE t.criador.id = :id")
+    List<Treino> findByCriador_Id(@Param("id") Long id);
+
+    // CORREÇÃO: Usando 't.itensTreino'
+    @Query("SELECT t FROM Treino t " +
+            "LEFT JOIN FETCH t.itensTreino i " +
+            "LEFT JOIN FETCH i.exercicio e " +
+            "WHERE t.id = :id")
+
+    Optional<Treino> findByIdWithItens(@Param("id") Long id);
 }

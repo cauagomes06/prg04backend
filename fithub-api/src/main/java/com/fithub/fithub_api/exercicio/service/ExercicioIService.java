@@ -19,5 +19,8 @@ public interface ExercicioIService {
 
     Page<Exercicio> buscarTodos(Pageable pageable);
 
-    List<Exercicio> buscarPorGrupoMuscular(String nomeMusculo);
-}
+    Page<Exercicio> buscarPorGrupoMuscular(String nomeMusculo,Pageable pageable);
+
+    public Page<Exercicio> buscarPorNome(String nome, Pageable pageable) ;
+
+    }

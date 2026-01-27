@@ -7,6 +7,7 @@ import com.fithub.fithub_api.notificacao.repository.NotificacaoRepository;
 import com.fithub.fithub_api.usuario.entity.Usuario;
 import com.fithub.fithub_api.usuario.repository.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -62,6 +63,7 @@ public class NotificacaoService implements NotificacaoIService {
 
     @Override
     @Transactional
+    @Async
     public void enviarParaTodos(NotificacaoBroadcastDto dto) {
         List<Usuario> todosUsuarios = usuarioRepository.findAll();
 

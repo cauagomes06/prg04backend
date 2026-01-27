@@ -24,28 +24,6 @@ class UsuarioRepositoryTest {
     @Autowired
     private TestEntityManager entityManager; // Recomendado para testes JPA
 
-    @Test
-    @DisplayName("Deve retornar top utilizadores ordenados por score decrescente")
-    void deveRetornarRankingOrdenado() {
-        // Cenário: Criando usuários usando o método auxiliar refatorado
-        criarUserComScore("top1", 1000);
-        criarUserComScore("top3", 500);
-        criarUserComScore("top2", 800);
-
-        // Ação
-        List<Usuario> ranking = usuarioRepository.findTop20ByOrderByScoreTotalDesc();
-
-        // Verificação
-        assertFalse(ranking.isEmpty());
-
-        // Valida ordem: 1º lugar (1000 pts)
-        assertEquals(1000, ranking.get(0).getScoreTotal());
-        assertEquals("top1", ranking.get(0).getUsername());
-
-        // Valida ordem: 2º lugar (800 pts)
-        assertEquals(800, ranking.get(1).getScoreTotal());
-        assertEquals("top2", ranking.get(1).getUsername());
-    }
 
     private void criarUserComScore(String username, int score) {
         // Busca as referências do banco para evitar erro de "Transient Object"

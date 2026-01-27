@@ -12,6 +12,7 @@ import com.fithub.fithub_api.exercicio.service.ExercicioService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -58,23 +59,44 @@ public class ExercicioController  {
     }
     @GetMapping("/buscar")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<Page<ExercicioResponseDto>> buscarTodos(Pageable pageable) {
+    public ResponseEntity<Page<ExercicioResponseDto>> buscarTodos(
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "12") int size,
+            @RequestParam(value = "search", required = false) String search) { // Recebe o texto
 
-      Page<Exercicio> exercicios = exercicioService.buscarTodos(pageable);
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Exercicio> exercicios;
 
-      Page<ExercicioResponseDto> pageExercicioDto = exercicios.map(ExercicioMapper::toExercicioDto);
+        // LÓGICA DE FILTRO:
+        if (search != null && !search.trim().isEmpty()) {
+            // Se o usuário digitou algo, chama o método de busca específica no Service
+            exercicios = exercicioService.buscarPorGrupoMuscular(search, pageable);
+        } else {
+            // Se a busca estiver vazia, traz todos (comportamento padrão)
+            exercicios = exercicioService.buscarTodos(pageable);
+        }
+
+        Page<ExercicioResponseDto> pageExercicioDto = exercicios.map(ExercicioMapper::toExercicioDto);
 
         return ResponseEntity.ok().body(pageExercicioDto);
     }
 
-    @GetMapping(value ="/buscar",params = "grupoMuscular")
+    @GetMapping(value = "/buscar", params = "grupoMuscular")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<List<ExercicioResponseDto>> buscarPorGrupoMuscular(
-            @RequestParam ("grupoMuscular") String grupoMuscular) {
+    public ResponseEntity<Page<ExercicioResponseDto>> buscarPorGrupoMuscular(
+            @RequestParam("grupoMuscular") String grupoMuscular,
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "12") int size) {
 
-        List<Exercicio> exercicios = exercicioService.buscarPorGrupoMuscular(grupoMuscular);
+        // 1. Cria o objeto Pageable manualmente (igual fizemos no buscarTodos)
+        Pageable pageable = PageRequest.of(page, size);
 
-        return ResponseEntity.ok().body(ExercicioMapper.toExercicioListDto(exercicios));
+        // 2. Chama o serviço (que agora retorna Page<Exercicio>)
+        Page<Exercicio> exerciciosPage = exercicioService.buscarPorGrupoMuscular(grupoMuscular, pageable);
+
+        // 3. Converte Page<Entity> para Page<Dto>
+        Page<ExercicioResponseDto> dtoPage = exerciciosPage.map(ExercicioMapper::toExercicioDto);
+
+        return ResponseEntity.ok().body(dtoPage);
     }
-
 }

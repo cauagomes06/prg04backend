@@ -14,6 +14,10 @@ import com.fithub.fithub_api.usuario.entity.Usuario;
 import com.fithub.fithub_api.usuario.service.UsuarioService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -27,14 +31,13 @@ import java.util.List;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("api/competicoes")
-public class CompeticaoController implements CompeticaoIController{
+public class CompeticaoController {
 
     private final CompeticaoService competicoService;
     private final InscricaoService inscricaoService;
     private final UsuarioService usuarioService;
 
 
-    @Override
     @PostMapping("/register")
     @PreAuthorize("hasAnyRole('ADMIN', 'PERSONAL')")
     public ResponseEntity<CompeticaoResponseDto> criarCompeticao(@RequestBody @Valid CompeticaoCreateDto createDto) {
@@ -43,16 +46,20 @@ public class CompeticaoController implements CompeticaoIController{
         return ResponseEntity.status(HttpStatus.CREATED).body(CompeticaoMapper.toDto(competicao));
     }
 
-    @Override
     @GetMapping("/buscar")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<List<CompeticaoResponseDto>> listarCompeticao() {
+    public ResponseEntity<Page<CompeticaoResponseDto>> listarCompeticao(
+            @PageableDefault(page = 0, size = 10, sort = "dataInicio", direction = Sort.Direction.DESC) Pageable pageable
+    ) {
+        // Busca a página de entidades
+        Page<Competicao> competicoesPage = competicoService.listarCompeticao(pageable);
 
-        List<Competicao> competicoes = competicoService.listarCompeticao();
-        return ResponseEntity.ok().body(CompeticaoMapper.toListDto(competicoes));
+        // Converte Page<Entity> para Page<DTO> usando o map nativo do Spring Data
+        Page<CompeticaoResponseDto> dtoPage = competicoesPage.map(CompeticaoMapper::toDto);
+
+        return ResponseEntity.ok().body(dtoPage);
     }
 
-    @Override
     @GetMapping("/buscar/{id}")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<CompeticaoResponseDto> buscarPorId(@PathVariable Long id) {
@@ -61,7 +68,6 @@ public class CompeticaoController implements CompeticaoIController{
         return ResponseEntity.ok().body(CompeticaoMapper.toDto(competicao));
     }
 
-    @Override
     @DeleteMapping("/delete/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deletarCompeticao(@PathVariable Long id) {
@@ -69,7 +75,6 @@ public class CompeticaoController implements CompeticaoIController{
         return ResponseEntity.noContent().build();
     }
 
-    @Override
     @PutMapping("/update/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'PERSONAL')")
     public ResponseEntity<CompeticaoResponseDto> editarCompeticao(@RequestBody CompeticaoCreateDto updateDto,
@@ -80,7 +85,6 @@ public class CompeticaoController implements CompeticaoIController{
         return ResponseEntity.ok().body(CompeticaoMapper.toDto(competicaoModificada));
     }
 
-    @Override
     @PostMapping("/{id}/inscrever")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<InscricaoResponseDto> inscrever(@PathVariable Long id,
@@ -94,7 +98,6 @@ public class CompeticaoController implements CompeticaoIController{
 
     }
 
-    @Override
     @GetMapping("/{id}/ranking")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<List<InscricaoResponseDto>> getRankingDaCompeticao(
@@ -116,7 +119,6 @@ public class CompeticaoController implements CompeticaoIController{
         return usuarioService.buscarPorUsername(userDetails.getUsername());
     }
 
-    @Override
     @PreAuthorize("hasAnyRole('ADMIN', 'PERSONAL')")
     @PatchMapping("/{id}/status")
     public ResponseEntity<Void> atualizarStatus(

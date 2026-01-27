@@ -22,7 +22,7 @@ import java.util.Map;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/notificacoes")
-public class NotificacaoController implements NotificacaoIController{
+public class NotificacaoController {
 
 private final NotificacaoService notificacaoService;
 private final UsuarioService usuarioService;

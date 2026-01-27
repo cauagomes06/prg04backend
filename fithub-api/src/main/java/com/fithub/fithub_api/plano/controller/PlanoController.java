@@ -20,11 +20,10 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/planos")
-public class PlanoController implements PlanoIController{
+public class PlanoController {
     private final PlanoService planoService;
 
 
-    @Override
     @PostMapping("/register")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<PlanoResponseDto> registrarPlano(@RequestBody @Valid PlanoCreateDto planoCreateDto) {
@@ -33,23 +32,21 @@ public class PlanoController implements PlanoIController{
         return ResponseEntity.status(HttpStatus.CREATED).body(PlanoMapper.toPlanoDto(novoPlano));
     }
 
-    @Override
     @GetMapping("/buscar")
     @PreAuthorize("permitAll()")
-    public ResponseEntity<List<PlanoResponseDto>> listarPlanos() {
+    public ResponseEntity<List<PlanoResponseDto>> listarPlanos(
+            @RequestParam(value = "search", required = false) String search) {
 
-        List<Plano> listPlano = planoService.buscarPlanos();
+        List<Plano> listPlano = planoService.buscarPlanos(search);
         return ResponseEntity.ok(PlanoMapper.toPlanoDtoList(listPlano));
     }
 
-    @Override
     @DeleteMapping("/delete/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deletePlano(@PathVariable Long id) {
         planoService.deletePlano(id);
         return  ResponseEntity.noContent().build();
     }
-    @Override
     @GetMapping("/{id}")
     @PreAuthorize("permitAll()")
     public ResponseEntity<PlanoResponseDto> buscarPlanoByid(@PathVariable Long id) {
@@ -57,7 +54,6 @@ public class PlanoController implements PlanoIController{
 
         return ResponseEntity.ok(PlanoMapper.toPlanoDto(plano));
     }
-    @Override
     @PutMapping("/update/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<PlanoResponseDto> editarPlano(
@@ -66,6 +62,7 @@ public class PlanoController implements PlanoIController{
         PlanoResponseDto planoAtulizado =  planoService.editarPlano(id,updateDto);
         return ResponseEntity.ok(planoAtulizado);
     }
+
     @PreAuthorize("permitAll()")
     @PatchMapping("/mudar/{usuarioId}")
     public ResponseEntity<Void> mudarPlano(

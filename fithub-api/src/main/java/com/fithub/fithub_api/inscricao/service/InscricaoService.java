@@ -70,7 +70,8 @@ public class InscricaoService implements InscricaoIService {
             throw new RuntimeException("Competição ja terminou");
         }
 
-        if(inscricao.getCompeticao().getStatus() != StatusCompeticao.ABERTA){
+        if(inscricao.getCompeticao().getStatus() != StatusCompeticao.ABERTA
+                && inscricao.getCompeticao().getStatus() != StatusCompeticao.EM_ANDAMENTO){
             throw new RuntimeException("Esta competição está encerrada. Não é possível submeter novos resultados.");
         }
         inscricao.setResultado(dto.getResultado());

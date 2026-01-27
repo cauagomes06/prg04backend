@@ -13,7 +13,7 @@ public interface  PlanoIService {
 
     public Plano registrarPlano(@RequestBody Plano plano);
 
-    List<Plano> buscarPlanos();
+    List<Plano> buscarPlanos( String search);
 
     Plano buscarPlanoById(Long id);
 

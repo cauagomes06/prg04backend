@@ -127,19 +127,23 @@ public class UsuarioService implements  UsuarioIService, UserDetailsService {
     }
 
     @Transactional(readOnly = true)
-    public List<UsuarioRankingDto> getRankingGeral() {
-        //busca os usuarios ordenados
-        List<Usuario> usuariosOrdenados = usuarioRepository.findTop20ByOrderByScoreTotalDesc();
+    public Page<UsuarioRankingDto> getRankingGeral(Pageable pageable) {
 
-        //  Mapeia para DTOs
-        List<UsuarioRankingDto> rankingDtos = UsuarioMapper.toRankingListDto(usuariosOrdenados);
+        // 1. Busca a página atual de usuários ordenados por score
+        Page<Usuario> usuariosPage = usuarioRepository.findAllByOrderByScoreTotalDesc(pageable);
 
-        //  Adiciona a lógica da Posição (Rank)
-        int posicao = 1;
-        for (UsuarioRankingDto dto : rankingDtos) {
-            dto.setPosicao(posicao++);
+        // 2. Converte de Page<Usuario> para Page<DTO> usando o .map() nativo
+        // (Certifique-se que existe o método toRankingDto unitário no Mapper)
+        Page<UsuarioRankingDto> rankingPage = usuariosPage.map(UsuarioMapper::toRankingDto);
+
+        long offset = pageable.getOffset();
+        int posicaoAtual = (int) offset + 1;
+
+        for (UsuarioRankingDto dto : rankingPage.getContent()) {
+            dto.setPosicao(posicaoAtual++);
         }
-        return rankingDtos;
+
+        return rankingPage;
     }
     @Transactional
     public void alterarPerfilUsuario(Long usuarioId, Long novoPerfilId) {

@@ -23,7 +23,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/competicoes/inscricao")
-public class InscricaoController implements InscricaoIController{
+public class InscricaoController{
 
     private final InscricaoIService inscricaoIService;
     private final UsuarioService usuarioIService;

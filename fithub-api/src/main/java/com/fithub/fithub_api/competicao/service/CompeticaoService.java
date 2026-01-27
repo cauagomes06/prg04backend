@@ -8,6 +8,8 @@ import com.fithub.fithub_api.exception.EntityNotFoundException;
 import com.fithub.fithub_api.inscricao.repository.InscricaoRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,18 +35,20 @@ public class CompeticaoService implements CompeticaoIService{
         }
 
     }
-
     @Override
-    @Transactional(readOnly = true)
-    public List<Competicao> listarCompeticao() {
+    @Transactional // Retirei o readOnly=true pois você faz save() dentro do método
+    public Page<Competicao> listarCompeticao(Pageable pageable) {
 
-        List<Competicao> competicoes = competicoRepository.findAll();
+        // Busca paginada direto do banco
+        Page<Competicao> paginaCompeticoes = competicoRepository.findAll(pageable);
+
         LocalDateTime agora = LocalDateTime.now();
 
-        for (Competicao comp : competicoes) {
+        // Itera apenas sobre o conteúdo da página atual para atualizar status
+        for (Competicao comp : paginaCompeticoes.getContent()) {
             boolean alterou = false;
 
-            // 1. Se está ABERTA mas já passou da data de início -> vira EM_ANDAMENTO
+            // 1. ABERTA -> EM_ANDAMENTO
             if (comp.getStatus() == StatusCompeticao.ABERTA
                     && agora.isAfter(comp.getDataInicio())
                     && agora.isBefore(comp.getDataFim())) {
@@ -53,7 +57,7 @@ public class CompeticaoService implements CompeticaoIService{
                 alterou = true;
             }
 
-            // 2. Se está ABERTA ou EM_ANDAMENTO mas já passou da data fim -> vira ENCERRADA
+            // 2. ABERTA/EM_ANDAMENTO -> ENCERRADA
             if ((comp.getStatus() == StatusCompeticao.ABERTA || comp.getStatus() == StatusCompeticao.EM_ANDAMENTO)
                     && agora.isAfter(comp.getDataFim())) {
 
@@ -61,12 +65,12 @@ public class CompeticaoService implements CompeticaoIService{
                 alterou = true;
             }
 
-            // Salva apenas se houve mudança para não sobrecarregar o banco
             if (alterou) {
                 competicoRepository.save(comp);
             }
         }
-        return competicoes;
+
+        return paginaCompeticoes;
     }
 
     @Override

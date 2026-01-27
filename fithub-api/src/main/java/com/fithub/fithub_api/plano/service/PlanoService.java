@@ -39,9 +39,12 @@ public class PlanoService implements PlanoIService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<Plano> buscarPlanos() {
-
-        return planoRepository.findAll();
+    public List<Plano> buscarPlanos(String search) {
+            //se nao tiver nada conrespondente com a pesquisa,traz todos
+        if (search == null || search.trim().isEmpty()) {
+            return planoRepository.findAll();
+        }
+        return planoRepository.findByNomeContainingIgnoreCase(search);
     }
 
     @Override
