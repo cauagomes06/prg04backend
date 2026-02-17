@@ -12,12 +12,13 @@ import com.fithub.fithub_api.treino.entity.Treino;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.io.Serializable;
 import java.time.LocalDate;
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 
 @Setter
@@ -27,7 +28,7 @@ import java.util.Set;
 @SuperBuilder
 @Entity
 @Table(name ="usuarios")
-public class Usuario extends PersistenceEntity implements Serializable  {
+public class Usuario extends PersistenceEntity implements Serializable, UserDetails {
 
 
     @Column(name = "username", unique = true,nullable = false,length = 50)
@@ -67,6 +68,15 @@ public class Usuario extends PersistenceEntity implements Serializable  {
     @OneToMany(mappedBy = "criador")
     private Set<Treino> treinosCriados = new HashSet<>();
 
+    // Treinos que o usuário decidiu seguir
+    @ManyToMany
+    @JoinTable(
+            name = "usuarios_treinos_assinados",
+            joinColumns = @JoinColumn(name = "usuario_id"),
+            inverseJoinColumns = @JoinColumn(name = "treino_id")
+    )
+    private Set<Treino> treinosAssinados = new HashSet<>();
+
     // Lista de aulas que este usuário (como instrutor) ministra
     @OneToMany(mappedBy = "instrutor")
     private Set<Aula> aulasMinistradas = new HashSet<>();
@@ -86,4 +96,33 @@ public class Usuario extends PersistenceEntity implements Serializable  {
     @Column(name = "score_total", nullable = false, columnDefinition = "int default 0")
     private int scoreTotal = 0;
 
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+
+        if (this.perfil != null) {
+            // Assume que perfil.getNome() retorna algo como "ROLE_ADMIN" ou "ADMIN"
+            return List.of(new SimpleGrantedAuthority(this.perfil.getNome()));
+        }
+        return List.of();
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return UserDetails.super.isAccountNonExpired();
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return UserDetails.super.isAccountNonLocked();
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return UserDetails.super.isCredentialsNonExpired();
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return UserDetails.super.isEnabled();
+    }
 }

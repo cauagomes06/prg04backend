@@ -13,14 +13,10 @@ import com.fithub.fithub_api.perfil.repository.PerfilRepository;
 import com.fithub.fithub_api.usuario.dto.UsuarioRankingDto;
 import com.fithub.fithub_api.usuario.entity.Usuario;
 import com.fithub.fithub_api.usuario.repository.UsuarioRepository;
-import com.fithub.fithub_api.usuario.dto.UsuarioCreateDto;
 import com.fithub.fithub_api.usuario.mapper.UsuarioMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -29,111 +25,89 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class UsuarioService implements  UsuarioIService, UserDetailsService {
+public class UsuarioService implements UsuarioIService, UserDetailsService {
 
     private final UsuarioRepository usuarioRepository;
     private final PessoaRepository pessoaRepository;
     private final PlanoRepository planoRepository;
-
     private final PerfilRepository perfilRepository;
     private final PasswordEncoder passwordEncoder;
 
-
+    @Override
     @Transactional
     public Usuario registrarUsuario(Usuario usuario) {
-        if (usuarioRepository.existsByUsername(usuario
-                .getUsername())) {
+        if (usuarioRepository.existsByUsername(usuario.getUsername())) {
             throw new UsernameUniqueViolationException(String.format("Usuario %s já cadastrado", usuario.getUsername()));
         }
-        if(pessoaRepository.existsByCpf(usuario.getPessoa().getCpf())) {
+        if (pessoaRepository.existsByCpf(usuario.getPessoa().getCpf())) {
             throw new CpfUniqueViolationException(
-                    "Ja existe um usuario registrado com o cpf : "+usuario.getPessoa().getCpf());
+                    "Ja existe um usuario registrado com o cpf : " + usuario.getPessoa().getCpf());
         }
-
-
         return usuarioRepository.save(usuario);
     }
 
     @Override
     @Transactional
     public Usuario editarSenha(Long id, String senhaAtual, String novaSenha, String confirmaSenha) {
+        if (!novaSenha.equals(confirmaSenha)) {
+            throw new PasswordInvalidException("Nova senha nao confere com confirmação de senha");
+        }
 
-            if(!novaSenha.equals(confirmaSenha)){
-                throw  new PasswordInvalidException("Nova senha nao confere com confirmação de senha");
-            }
-
-            Usuario user = buscarPorId(id);
-            if( !passwordEncoder.matches(senhaAtual,user.getPassword())){
-
-                throw new PasswordInvalidException("sua senha não confere");
-            }
-            user.setPassword(passwordEncoder.encode(novaSenha));
-            return user;
+        Usuario user = buscarPorId(id);
+        if (!passwordEncoder.matches(senhaAtual, user.getPassword())) {
+            throw new PasswordInvalidException("sua senha não confere");
+        }
+        user.setPassword(passwordEncoder.encode(novaSenha));
+        return user;
     }
+
     @Override
     @Transactional(readOnly = true)
     public Usuario buscarPorId(Long id) {
         return usuarioRepository.findById(id).orElseThrow(
-                () -> new EntityNotFoundException(String.format("Usuario com id %s  não encontrado", id)));
+                () -> new EntityNotFoundException(String.format("Usuario com id %s não encontrado", id)));
     }
 
     @Override
     @Transactional(readOnly = true)
     public Page<Usuario> buscarTodos(Pageable pageable) {
-
         return usuarioRepository.findAll(pageable);
     }
 
     @Override
+    @Transactional
     public void delete(Long id) {
-
         Usuario usuario = this.buscarPorId(id);
-        if(usuarioRepository.existsByUsername(usuario.getUsername())){
-            usuarioRepository.delete(usuario);
-        }
-        else{
-            throw new RuntimeException("Usuario não encontrado");
-        }
+        usuarioRepository.delete(usuario);
     }
 
+    // --- IMPLEMENTAÇÃO DO USER DETAILS SERVICE ---
 
     @Override
     @Transactional(readOnly = true)
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-
-        Usuario usuario = usuarioRepository.findByUsername(username)
-                .orElseThrow(()-> new UsernameNotFoundException("Usuario não encontrado com email:" +username));
-
-
-        List<GrantedAuthority> authorities = new ArrayList<>();
-        if (usuario.getPerfil() != null) {
-            authorities.add(new SimpleGrantedAuthority((usuario.getPerfil().getNome())));
-        }
-                return new User(
-                        usuario.getUsername(),
-                        usuario.getPassword(),
-                        authorities) ;
+        // AQUI ESTÁ A MUDANÇA CRÍTICA:
+        // Retornamos o próprio objeto Usuario (que deve implementar UserDetails).
+        // Isso evita ter que buscar o usuário novamente no Controller.
+        return usuarioRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("Usuario não encontrado com username: " + username));
     }
+
+    // ---------------------------------------------
 
     @Transactional(readOnly = true)
     public Usuario buscarPorUsername(String username) {
         return usuarioRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado com email:" + username));
+                .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado com username: " + username));
     }
 
     @Transactional(readOnly = true)
     public Page<UsuarioRankingDto> getRankingGeral(Pageable pageable) {
-
-        // 1. Busca a página atual de usuários ordenados por score
         Page<Usuario> usuariosPage = usuarioRepository.findAllByOrderByScoreTotalDesc(pageable);
-
-        // 2. Converte de Page<Usuario> para Page<DTO> usando o .map() nativo
-        // (Certifique-se que existe o método toRankingDto unitário no Mapper)
         Page<UsuarioRankingDto> rankingPage = usuariosPage.map(UsuarioMapper::toRankingDto);
 
         long offset = pageable.getOffset();
@@ -145,24 +119,22 @@ public class UsuarioService implements  UsuarioIService, UserDetailsService {
 
         return rankingPage;
     }
+
     @Transactional
     public void alterarPerfilUsuario(Long usuarioId, Long novoPerfilId) {
-        // 1. Buscar o usuário
         Usuario usuario = usuarioRepository.findById(usuarioId)
-                .orElseThrow(() -> new RuntimeException("Usuário não encontrado com id: " + usuarioId));
+                .orElseThrow(() -> new EntityNotFoundException("Usuário não encontrado com id: " + usuarioId));
 
-        // 2. Buscar o novo perfil desejado
         Perfil novoPerfil = perfilRepository.findById(novoPerfilId)
-                .orElseThrow(() -> new RuntimeException("Perfil não encontrado com id: " + novoPerfilId));
+                .orElseThrow(() -> new EntityNotFoundException("Perfil não encontrado com id: " + novoPerfilId));
 
-        // 3. Atualizar o perfil
         usuario.setPerfil(novoPerfil);
-
         usuarioRepository.save(usuario);
     }
+
     @Override
+    @Transactional(readOnly = true)
     public List<InstrutorResponseDto> buscarInstrutores() {
-        // "INSTRUTOR" deve ser o nome exato do seu perfil no banco de dados.
         List<Usuario> instrutores = usuarioRepository.findAllByPerfilNome("ROLE_PERSONAL");
         return UsuarioMapper.toListInstrutorDto(instrutores);
     }
@@ -178,19 +150,14 @@ public class UsuarioService implements  UsuarioIService, UserDetailsService {
     @Override
     @Transactional
     public void atualizarPlanoUsuario(Long usuarioId, Long novoPlanoId) {
-        // 1. Busca o usuário
         Usuario usuario = usuarioRepository.findById(usuarioId)
-                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+                .orElseThrow(() -> new EntityNotFoundException("Usuário não encontrado"));
 
-        // 2. Busca o novo plano
         Plano novoPlano = planoRepository.findById(novoPlanoId)
-                .orElseThrow(() -> new RuntimeException("Plano não encontrado"));
+                .orElseThrow(() -> new EntityNotFoundException("Plano não encontrado"));
 
-        // 3. Atualiza e salva
         usuario.setPlano(novoPlano);
-
-        //Atualizar data de expiração, status, etc.
-         usuario.setDataVencimentoPlano(LocalDate.now().plusDays(30));
+        usuario.setDataVencimentoPlano(LocalDate.now().plusDays(30));
 
         usuarioRepository.save(usuario);
     }
