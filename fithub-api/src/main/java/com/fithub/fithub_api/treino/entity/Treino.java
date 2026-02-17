@@ -10,7 +10,9 @@
 
         import java.io.Serializable;
         import java.util.ArrayList;
+        import java.util.HashSet;
         import java.util.List;
+        import java.util.Set;
 
         @Getter
         @Setter
@@ -43,4 +45,8 @@
                     orphanRemoval = true
             )
             private List<ItemTreino> itensTreino = new ArrayList<>();
+
+            // Lista de alunos que seguem este treino
+            @ManyToMany(mappedBy = "treinosAssinados")
+            private Set<Usuario> alunosSeguidores = new HashSet<>();
         }

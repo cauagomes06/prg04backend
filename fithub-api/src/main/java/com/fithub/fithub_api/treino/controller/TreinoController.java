@@ -4,7 +4,6 @@ import com.fithub.fithub_api.treino.dto.TreinoResponseDto;
 import com.fithub.fithub_api.treino.entity.Treino;
 import com.fithub.fithub_api.treino.service.TreinoService;
 import com.fithub.fithub_api.usuario.entity.Usuario;
-import com.fithub.fithub_api.usuario.service.UsuarioService;
 import com.fithub.fithub_api.treino.dto.TreinoCreateDto;
 import com.fithub.fithub_api.treino.mapper.TreinoMapper;
 import jakarta.validation.Valid;
@@ -15,7 +14,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -26,16 +24,14 @@ import java.util.List;
 public class TreinoController {
 
     private final TreinoService treinoService;
-    private final UsuarioService usuarioService; // Para buscar a entidade Usuario
 
 
     @PostMapping("/register")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<TreinoResponseDto> criar(
             @Valid @RequestBody TreinoCreateDto dto,
-            @AuthenticationPrincipal UserDetails userDetails) {
+            @AuthenticationPrincipal Usuario usuarioLogado) {
 
-        Usuario usuarioLogado = getUsuarioLogado(userDetails);
         Treino treinoSalvo = treinoService.criarTreino(dto, usuarioLogado);
         return ResponseEntity.status(HttpStatus.CREATED).body(TreinoMapper.toDto(treinoSalvo));
     }
@@ -43,87 +39,107 @@ public class TreinoController {
     @PutMapping("update/{id}")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<TreinoResponseDto> atualizar(
-            @PathVariable Long id,@RequestBody @Valid TreinoCreateDto dto,
-            @AuthenticationPrincipal UserDetails userDetails) {
-
-        Usuario usuarioLogado = getUsuarioLogado(userDetails);
-        Treino treinoAtualizado = treinoService.editarTreino(dto,usuarioLogado,id);
+            @PathVariable Long id, @RequestBody @Valid TreinoCreateDto dto,
+            @AuthenticationPrincipal Usuario usuarioLogado) {
 
 
-         return ResponseEntity.status(HttpStatus.OK).body(TreinoMapper.toDto(treinoAtualizado));
+        Treino treinoAtualizado = treinoService.editarTreino(dto, usuarioLogado, id);
+
+
+        return ResponseEntity.status(HttpStatus.OK).body(TreinoMapper.toDto(treinoAtualizado));
     }
 
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/{id}")
-    public ResponseEntity<TreinoResponseDto> buscarPorId(@PathVariable Long id){
+    public ResponseEntity<TreinoResponseDto> buscarPorId(@PathVariable Long id) {
 
-        Treino treino =  treinoService.buscarTreinoPorId(id);
+        Treino treino = treinoService.buscarTreinoPorId(id);
         return ResponseEntity.ok().body(TreinoMapper.toDto(treino));
     }
 
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<Void> deletar(
             @PathVariable Long id,
-            @AuthenticationPrincipal UserDetails userDetails) {
+            @AuthenticationPrincipal Usuario usuarioLogado) {
 
-        Usuario usuarioLogado = getUsuarioLogado(userDetails);
+
         treinoService.deletarTreino(id, usuarioLogado);
         return ResponseEntity.noContent().build();
     }
+
     @GetMapping("/buscar")
     @PreAuthorize("isAuthenticated()")
-     public ResponseEntity<Page<TreinoResponseDto>> buscarTodosTreinosPublicos(Pageable pageable) {
+    public ResponseEntity<Page<TreinoResponseDto>> buscarTodosTreinosPublicos(
+            Pageable pageable,
+            @AuthenticationPrincipal Usuario usuarioLogado) {
 
-       Page<Treino> treinos =  treinoService.buscarTodosTreinosPublicos(pageable);
+        Page<Treino> treinos = treinoService.buscarTodosTreinosPublicos(pageable);
 
-       Page<TreinoResponseDto> responseDtoPage = treinos.map(TreinoMapper::toDto);
+        Page<TreinoResponseDto> responseDtoPage = treinos
+                .map(treino -> TreinoMapper.toDto(treino, usuarioLogado));
+
         return ResponseEntity.ok().body(responseDtoPage);
-     }
+    }
 
     @PreAuthorize("isAuthenticated()")
     @GetMapping
-    public ResponseEntity<Page<TreinoResponseDto>> buscarTodosTreinos(Pageable pageable){
+    public ResponseEntity<Page<TreinoResponseDto>> buscarTodosTreinos(Pageable pageable) {
 
-        Page<Treino> treinos =  treinoService.buscarTodos(pageable);
+        Page<Treino> treinos = treinoService.buscarTodos(pageable);
 
-        Page <TreinoResponseDto> pageableDto = treinos.map(TreinoMapper::toDto);
+        Page<TreinoResponseDto> pageableDto = treinos.map(TreinoMapper::toDto);
         return ResponseEntity.ok().body(pageableDto);
     }
 
     @PreAuthorize("hasAnyRole('ADMIN', 'PERSONAL')")
     @PatchMapping("/{id}/publicar")
     public ResponseEntity<TreinoResponseDto> publicar(
-                    @PathVariable Long id,
-                    @AuthenticationPrincipal UserDetails userDetails) {
+            @PathVariable Long id,
+            @AuthenticationPrincipal Usuario usuarioLogado) {
 
-                Usuario usuarioLogado = getUsuarioLogado(userDetails);
-                Treino treinoPublicado = treinoService.publicarTreino(id, usuarioLogado);
-                return ResponseEntity.ok(TreinoMapper.toDto(treinoPublicado));
+
+        Treino treinoPublicado = treinoService.publicarTreino(id, usuarioLogado);
+        return ResponseEntity.ok(TreinoMapper.toDto(treinoPublicado));
     }
 
     @PreAuthorize("isAuthenticated()")
     @PostMapping("/{id}/clonar")
     public ResponseEntity<TreinoResponseDto> clonarTreino(
             @PathVariable Long id,
-            @AuthenticationPrincipal UserDetails userDetails) {
+            @AuthenticationPrincipal Usuario usuarioLogado) {
 
-        Usuario usuarioLogado = usuarioService.buscarPorUsername(userDetails.getUsername());
 
         Treino novoTreino = treinoService.clonarTreino(id, usuarioLogado);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(TreinoMapper.toDto(novoTreino));
     }
+
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/usuario/{id}")
-    public ResponseEntity<List<TreinoResponseDto>> buscarTreinosUsuario(@PathVariable Long id){
+    public ResponseEntity<List<TreinoResponseDto>> buscarTreinosUsuario(@PathVariable Long id) {
 
-        List<Treino> treinos =  treinoService.buscarPorUsuarioId(id);
+        List<Treino> treinos = treinoService.buscarPorUsuarioId(id);
         return ResponseEntity.ok().body(TreinoMapper.toListDto(treinos));
     }
 
-        public Usuario getUsuarioLogado(UserDetails userDetails) {
+    @PostMapping("/{id}/seguir")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<Void> seguirTreino(
+            @PathVariable Long id,
+            @AuthenticationPrincipal Usuario usuarioLogado) {
 
-        String username = userDetails.getUsername();
-            return usuarioService.buscarPorUsername(userDetails.getUsername());
-        }
+        treinoService.seguirTreino(id, usuarioLogado);
+        return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("/{id}/deixar-de-seguir")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<Void> deixarDeSeguirTreino(
+            @PathVariable Long id,
+            @AuthenticationPrincipal Usuario usuarioLogado) {
+
+        treinoService.deixarDeSeguirTreino(id, usuarioLogado);
+        return ResponseEntity.noContent().build();
+    }
 }
+

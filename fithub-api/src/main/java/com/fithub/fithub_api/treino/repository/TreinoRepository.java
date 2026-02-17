@@ -36,4 +36,10 @@ public interface TreinoRepository extends JpaRepository<Treino,Long> {
             "WHERE t.id = :id")
 
     Optional<Treino> findByIdWithItens(@Param("id") Long id);
+
+    @Query("SELECT t FROM Treino t LEFT JOIN t.alunosSeguidores s " +
+            "WHERE t.status = :status " +
+            "GROUP BY t " +
+            "ORDER BY COUNT(s) DESC")
+    Page<Treino> findAllByStatusOrderByFollowersDesc(@Param("status") StatusTreino status, Pageable pageable);
 }
