@@ -7,6 +7,7 @@ import com.fithub.fithub_api.usuario.dto.UsuarioCreateDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -26,7 +27,7 @@ public interface UsuarioIService {
 
     List<InstrutorResponseDto> buscarInstrutores();
 
-    void atualizarFoto(Long id, String novaUrl);
+    String atualizarFoto(Long id, MultipartFile arquivo);
 
     void alterarPerfilUsuario(Long usuarioId, Long novoPerfilId);
 

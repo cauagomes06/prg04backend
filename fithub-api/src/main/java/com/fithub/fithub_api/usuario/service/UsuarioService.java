@@ -2,6 +2,7 @@ package com.fithub.fithub_api.usuario.service;
 
 import com.fithub.fithub_api.aula.dto.InstrutorResponseDto;
 import com.fithub.fithub_api.exception.EntityNotFoundException;
+import com.fithub.fithub_api.infraestructure.service.FileBucketService;
 import com.fithub.fithub_api.pessoa.repository.PessoaRepository;
 import com.fithub.fithub_api.plano.entity.Plano;
 import com.fithub.fithub_api.plano.repository.PlanoRepository;
@@ -23,9 +24,12 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -36,6 +40,7 @@ public class UsuarioService implements UsuarioIService, UserDetailsService {
     private final PlanoRepository planoRepository;
     private final PerfilRepository perfilRepository;
     private final PasswordEncoder passwordEncoder;
+    private final FileBucketService fileBucketService;
 
     @Override
     @Transactional
@@ -138,13 +143,36 @@ public class UsuarioService implements UsuarioIService, UserDetailsService {
         List<Usuario> instrutores = usuarioRepository.findAllByPerfilNome("ROLE_PERSONAL");
         return UsuarioMapper.toListInstrutorDto(instrutores);
     }
-
     @Override
     @Transactional
-    public void atualizarFoto(Long id, String novaUrl) {
+    public String atualizarFoto(Long id, MultipartFile arquivo) {
+
+        if (arquivo == null || arquivo.isEmpty()) {
+            throw new IllegalArgumentException("Arquivo inválido.");
+        }
+
         Usuario usuario = buscarPorId(id);
-        usuario.setFotoUrl(novaUrl);
-        usuarioRepository.save(usuario);
+
+        try {
+
+            String extensao = arquivo.getOriginalFilename()
+                    .substring(arquivo.getOriginalFilename().lastIndexOf("."));
+
+            String fileName = "usuarios/" + id + extensao;
+
+            byte[] content = arquivo.getBytes();
+
+            String url = fileBucketService.uploadFile(fileName, content);
+
+            usuario.setFotoUrl(url);
+
+            usuarioRepository.save(usuario);
+
+            return url;
+
+        } catch (IOException e) {
+            throw new RuntimeException("Erro ao fazer upload da foto.", e);
+        }
     }
 
     @Override

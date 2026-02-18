@@ -12,6 +12,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -19,6 +20,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Map;
@@ -115,17 +117,18 @@ public class UsuarioController  {
     }
 
 
-    @PatchMapping("/me/foto")
+    @PatchMapping(value = "/me/foto", consumes = MediaType.MULTIPART_FORM_DATA_VALUE) // Indica que recebe arquivo
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<Void> atualizarFotoPerfil(
-            @RequestBody Map<String, String> payload,
-            @AuthenticationPrincipal UserDetails userDetails) {
+    public ResponseEntity<Map<String, String>> atualizarFotoPerfil(
+            @RequestParam("file") MultipartFile file, // Recebe o arquivo do form-data
+            @AuthenticationPrincipal Usuario usuarioLogado) {
 
-        String novaUrl = payload.get("fotoUrl");
-        Usuario usuario = getUsuarioEntity(userDetails); // Uso do método auxiliar
 
-        usuarioService.atualizarFoto(usuario.getId(), novaUrl);
-        return ResponseEntity.noContent().build();
+        // Chama o serviço passando o arquivo real
+        String novaUrl = usuarioService.atualizarFoto(usuarioLogado.getId(), file);
+
+        // Retorna a nova URL para o React atualizar a imagem na hora sem F5
+        return ResponseEntity.ok(Map.of("url", novaUrl));
     }
 
 
@@ -142,11 +145,10 @@ public class UsuarioController  {
 
     @GetMapping("/me")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<UsuarioResponseDto> getUsuarioLogado(@AuthenticationPrincipal UserDetails userDetails) {
-        if (userDetails == null) return ResponseEntity.status(401).build();
+    public ResponseEntity<UsuarioResponseDto> getUsuarioLogado(@AuthenticationPrincipal Usuario usuarioLogado) {
 
-        Usuario usuario = getUsuarioEntity(userDetails);
-        return ResponseEntity.ok(usuarioMapper.toDto(usuario));
+
+        return ResponseEntity.ok(usuarioMapper.toDto(usuarioLogado));
     }
 
     @PatchMapping("/alterar-plano")
