@@ -27,4 +27,11 @@ public interface TreinoIService {
     List<Treino> buscarPorUsuarioId(Long id);
 
     Page<Treino> buscarTodos(Pageable pageable);
+
+    void deixarDeSeguirTreino(Long treinoId, Usuario usuarioLogado);
+
+    void seguirTreino(Long treinoId, Usuario usuarioLogado);
+
+    Page<Treino> buscarTreinosPorFiltro(String filtro, String termo, Pageable pageable, Usuario usuarioLogado);
+
 }

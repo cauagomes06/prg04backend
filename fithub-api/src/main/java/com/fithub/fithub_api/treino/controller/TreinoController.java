@@ -25,7 +25,6 @@ public class TreinoController {
 
     private final TreinoService treinoService;
 
-
     @PostMapping("/register")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<TreinoResponseDto> criar(
@@ -42,17 +41,13 @@ public class TreinoController {
             @PathVariable Long id, @RequestBody @Valid TreinoCreateDto dto,
             @AuthenticationPrincipal Usuario usuarioLogado) {
 
-
         Treino treinoAtualizado = treinoService.editarTreino(dto, usuarioLogado, id);
-
-
         return ResponseEntity.status(HttpStatus.OK).body(TreinoMapper.toDto(treinoAtualizado));
     }
 
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/{id}")
     public ResponseEntity<TreinoResponseDto> buscarPorId(@PathVariable Long id) {
-
         Treino treino = treinoService.buscarTreinoPorId(id);
         return ResponseEntity.ok().body(TreinoMapper.toDto(treino));
     }
@@ -61,8 +56,6 @@ public class TreinoController {
     public ResponseEntity<Void> deletar(
             @PathVariable Long id,
             @AuthenticationPrincipal Usuario usuarioLogado) {
-
-
         treinoService.deletarTreino(id, usuarioLogado);
         return ResponseEntity.noContent().build();
     }
@@ -74,19 +67,34 @@ public class TreinoController {
             @AuthenticationPrincipal Usuario usuarioLogado) {
 
         Page<Treino> treinos = treinoService.buscarTodosTreinosPublicos(pageable);
-
         Page<TreinoResponseDto> responseDtoPage = treinos
                 .map(treino -> TreinoMapper.toDto(treino, usuarioLogado));
 
         return ResponseEntity.ok().body(responseDtoPage);
     }
 
+    // --- AQUI ESTÁ A CORREÇÃO PRINCIPAL ---
+    @GetMapping("/buscar-per-filter")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<Page<TreinoResponseDto>> buscarTreinos(
+            // Adicionado 'value' para mapear corretamente
+            @RequestParam(value = "filtro", defaultValue = "RECENTES") String filtro,
+            // Adicionado 'termo' para a busca por texto
+            @RequestParam(value = "termo", required = false, defaultValue = "") String termo,
+            Pageable pageable,
+            @AuthenticationPrincipal Usuario usuarioLogado) {
+
+        // Agora passamos o 'termo' para o service lidar com a lógica
+        Page<Treino> treinos = treinoService.buscarTreinosPorFiltro(filtro, termo, pageable, usuarioLogado);
+
+        Page<TreinoResponseDto> response = treinos.map(t -> TreinoMapper.toDto(t, usuarioLogado));
+        return ResponseEntity.ok(response);
+    }
+
     @PreAuthorize("isAuthenticated()")
     @GetMapping
     public ResponseEntity<Page<TreinoResponseDto>> buscarTodosTreinos(Pageable pageable) {
-
         Page<Treino> treinos = treinoService.buscarTodos(pageable);
-
         Page<TreinoResponseDto> pageableDto = treinos.map(TreinoMapper::toDto);
         return ResponseEntity.ok().body(pageableDto);
     }
@@ -96,8 +104,6 @@ public class TreinoController {
     public ResponseEntity<TreinoResponseDto> publicar(
             @PathVariable Long id,
             @AuthenticationPrincipal Usuario usuarioLogado) {
-
-
         Treino treinoPublicado = treinoService.publicarTreino(id, usuarioLogado);
         return ResponseEntity.ok(TreinoMapper.toDto(treinoPublicado));
     }
@@ -107,17 +113,13 @@ public class TreinoController {
     public ResponseEntity<TreinoResponseDto> clonarTreino(
             @PathVariable Long id,
             @AuthenticationPrincipal Usuario usuarioLogado) {
-
-
         Treino novoTreino = treinoService.clonarTreino(id, usuarioLogado);
-
         return ResponseEntity.status(HttpStatus.CREATED).body(TreinoMapper.toDto(novoTreino));
     }
 
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/usuario/{id}")
     public ResponseEntity<List<TreinoResponseDto>> buscarTreinosUsuario(@PathVariable Long id) {
-
         List<Treino> treinos = treinoService.buscarPorUsuarioId(id);
         return ResponseEntity.ok().body(TreinoMapper.toListDto(treinos));
     }
@@ -127,7 +129,6 @@ public class TreinoController {
     public ResponseEntity<Void> seguirTreino(
             @PathVariable Long id,
             @AuthenticationPrincipal Usuario usuarioLogado) {
-
         treinoService.seguirTreino(id, usuarioLogado);
         return ResponseEntity.ok().build();
     }
@@ -137,9 +138,7 @@ public class TreinoController {
     public ResponseEntity<Void> deixarDeSeguirTreino(
             @PathVariable Long id,
             @AuthenticationPrincipal Usuario usuarioLogado) {
-
         treinoService.deixarDeSeguirTreino(id, usuarioLogado);
         return ResponseEntity.noContent().build();
     }
 }
-

@@ -17,10 +17,13 @@ public class TreinoResponseDto {
     // Novos campos de relacionamento
     private Long criadorId;      // Para linkar ao perfil do criador
     private String criadorNome;
-    private String criadorFoto;  // Opcional: Legal para mostrar o avatar no card
+    private String criadorFoto;
 
     private boolean seguindo;    // TRUE se o usuário logado segue, FALSE se não
     private int numeroSeguidores; // Total de seguidores
 
     private List<ItemTreinoResponseDto> items;
+
+    private Double mediaNota;
+    private Integer totalAvaliacoes;
 }

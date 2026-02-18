@@ -1,5 +1,6 @@
         package com.fithub.fithub_api.treino.entity;
 
+        import com.fithub.fithub_api.avaliacao.entity.Avaliacao;
         import com.fithub.fithub_api.infraestructure.entity.Auditable;
         import com.fithub.fithub_api.infraestructure.entity.PersistenceEntity;
         import com.fithub.fithub_api.itemtreino.entity.ItemTreino;
@@ -49,4 +50,16 @@
             // Lista de alunos que seguem este treino
             @ManyToMany(mappedBy = "treinosAssinados")
             private Set<Usuario> alunosSeguidores = new HashSet<>();
+
+
+
+            @Column(name = "media_nota", columnDefinition = "float8 default 0.0")
+            private Double mediaNota = 0.0;
+
+            @Column(name = "total_avaliacoes", columnDefinition = "integer default 0")
+            private Integer totalAvaliacoes = 0;
+
+            // Relacionamento inverso
+            @OneToMany(mappedBy = "treino", cascade = CascadeType.ALL, orphanRemoval = true)
+            private List<Avaliacao> avaliacoes = new ArrayList<>();
         }

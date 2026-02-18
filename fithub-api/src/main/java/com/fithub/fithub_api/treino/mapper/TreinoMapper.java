@@ -28,6 +28,8 @@ public class TreinoMapper {
         dto.setId(treino.getId());
         dto.setNome(treino.getNome());
         dto.setDescricao(treino.getDescricao());
+        dto.setMediaNota(treino.getMediaNota());
+        dto.setTotalAvaliacoes(treino.getTotalAvaliacoes());
 
         if (treino.getStatus() != null) {
             dto.setStatus(treino.getStatus().name());
@@ -58,6 +60,7 @@ public class TreinoMapper {
                 itemDto.setRepeticoes(item.getRepeticoes());
                 itemDto.setDescanso(item.getDescanso());
                 itemDto.setOrdem(item.getOrdem());
+
 
                 // Dados do Exercício
                 if (item.getExercicio() != null) {

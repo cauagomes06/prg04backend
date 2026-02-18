@@ -99,7 +99,7 @@
         @Transactional(readOnly = true)
         public Page<Treino> buscarTodosTreinosPublicos(Pageable pageable) {
 
-            return treinoRepository.findAllByStatus(StatusTreino.PUBLICO,pageable);
+            return treinoRepository.findPublicos(pageable);
         }
 
         @Override
@@ -137,14 +137,14 @@
         @Override
         @Transactional(readOnly = true)
         public List<Treino> buscarPorUsuarioId(Long id) {
-            return treinoRepository.findByCriador_Id(id);
+            return treinoRepository.findByCriadorId(id);
         }
 
         @Override
         @Transactional(readOnly = true)
         public Page<Treino> buscarTodos(Pageable pageable) {
 
-            return treinoRepository.findAllByStatusOrderByFollowersDesc(StatusTreino.PUBLICO, pageable);
+            return treinoRepository.findAll(pageable);
         }
 
         @Transactional
@@ -223,6 +223,7 @@
         }
 
         @Transactional
+        @Override
         public void seguirTreino(Long treinoId, Usuario usuarioLogado) {
             // 1. Busca o treino
             Treino treino = buscarTreinoPorId(treinoId);
@@ -237,7 +238,7 @@
                 throw new IllegalArgumentException("Você já é o dono deste treino.");
             }
 
-            // 4. Adiciona na lista do USUÁRIO (Lado dono da relação ManyToMany)
+            // 4. Adiciona na lista do USUÁRIO
             usuarioLogado.getTreinosAssinados().add(treino);
 
             // 5. Salva o usuário para persistir a relação na tabela de junção
@@ -245,6 +246,7 @@
         }
 
         @Transactional
+        @Override
         public void deixarDeSeguirTreino(Long treinoId, Usuario usuarioLogado) {
             // Não precisamos buscar o objeto inteiro no banco só para remover
             // Basta remover da lista qualquer item que tenha esse ID
@@ -259,4 +261,48 @@
                 throw new EntityNotFoundException("Você não segue este treino.");
             }
         }
+        @Override
+        @Transactional(readOnly = true)
+        public Page<Treino> buscarTreinosPorFiltro(
+                String filtro,
+                String termo,
+                Pageable pageable,
+                Usuario usuarioLogado
+        ) {
+
+            // Normalização
+            String termoNormalizado = (termo != null) ? termo.trim() : null;
+            String filtroNormalizado = (filtro != null) ? filtro.toUpperCase() : "RECENTES";
+
+            if (termoNormalizado != null && !termoNormalizado.isEmpty()) {
+                return treinoRepository.buscarPorTermo(
+                        termoNormalizado,
+                        StatusTreino.PUBLICO,
+                        pageable
+                );
+            }
+
+            switch (filtroNormalizado) {
+
+                case "MAIS_SEGUIDOS":
+                    return treinoRepository.buscarMaisSeguidos(pageable);
+
+                case "MELHORES_AVALIADOS":
+                    return treinoRepository.buscarMelhoresAvaliados(pageable);
+
+                case "SEGUINDO":
+                    if (usuarioLogado == null) {
+                        return Page.empty(pageable);
+                    }
+                    return treinoRepository.buscarTreinosDeQuemSigo(
+                            usuarioLogado.getId(),
+                            pageable
+                    );
+
+                case "RECENTES":
+                default:
+                    return treinoRepository.buscarRecentes(pageable);
+            }
+        }
+
     }
