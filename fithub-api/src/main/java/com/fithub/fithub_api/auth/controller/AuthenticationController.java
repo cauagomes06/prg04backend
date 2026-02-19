@@ -21,6 +21,7 @@ public class AuthenticationController {
 
     private final AuthenticationManager authenticationManager;
     private final JwtTokenService tokenService;
+    private final AuthService authService;
 
     @PostMapping("/login")
     public ResponseEntity<TokenResponseDto> login(@Valid @RequestBody LoginRequestDto loginDto) {
@@ -28,6 +29,8 @@ public class AuthenticationController {
         UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                 loginDto.getUsername(), loginDto.getPassword()
         );
+
+        authService.verificarStatusPlanoPorUsername(loginDto.getUsername());
 
         Authentication authentication = authenticationManager.authenticate(authToken);
 

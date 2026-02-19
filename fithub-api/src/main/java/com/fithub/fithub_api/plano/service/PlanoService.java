@@ -60,9 +60,9 @@ public class PlanoService implements PlanoIService {
     public void deletePlano(Long id) {
 
         Plano plano = this.buscarPlanoById(id);
-        if(usuarioRepository.existsByPlanoId(plano.getId())){
-            throw new EntityEmUsoException("Não é possivel excluir o plano,pois existem usuarios associados a ele");
-        }
+
+        usuarioRepository.desvincularPlanoDosUsuarios(id);
+
         planoRepository.deleteById(id);
     }
     @Transactional

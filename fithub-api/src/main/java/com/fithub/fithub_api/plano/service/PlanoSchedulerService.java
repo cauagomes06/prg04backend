@@ -46,8 +46,8 @@ public class PlanoSchedulerService {
             log.info("A inativar plano do utilizador: {} (Venceu em: {})",
                     usuario.getUsername(), usuario.getDataVencimentoPlano());
 
-            // Atualiza o estado para INATIVO
-            usuario.setStatusPlano(StatusPlano.INATIVO);
+            // Atualiza o estado para CANCELADO
+            usuario.setStatusPlano(StatusPlano.CANCELADO);
 
             // Guarda na base de dados
             usuarioRepository.save(usuario);

@@ -150,7 +150,8 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     // Captura erros de permissão de acesso (usuário logado sem permissão)
-    @ExceptionHandler(AccessDeniedException.class)
+    @ExceptionHandler({
+            AccessDeniedException.class})
     public ResponseEntity<ErrorMessage> handleAccessDenied(
             AccessDeniedException ex,
             HttpServletRequest request) {
@@ -160,6 +161,17 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return ResponseEntity
                 .status(HttpStatus.FORBIDDEN)
                 .body(new ErrorMessage(request, HttpStatus.FORBIDDEN, "Acesso negado."));
+    }
+    @ExceptionHandler(PlanoDataViolation.class)
+    public ResponseEntity<ErrorMessage> handlePlanoViolation(
+            RuntimeException ex,
+            HttpServletRequest request) {
+
+        log.error("Violação de data de plano", ex);
+
+        return ResponseEntity
+                .status(HttpStatus.FORBIDDEN)
+                .body(new ErrorMessage(request, HttpStatus.FORBIDDEN, ex.getMessage()));
     }
 
     // Captura falhas na autenticação (usuário não logado ou token inválido)

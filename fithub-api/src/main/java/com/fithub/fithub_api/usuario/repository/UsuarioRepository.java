@@ -5,6 +5,7 @@ import com.fithub.fithub_api.usuario.entity.Usuario;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -24,6 +25,9 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
             "WHERE u.username = :username")
     Optional<Usuario> findByUsername(@Param("username") String username);
 
+    @Modifying // Diz ao Spring que esta query vai alterar dados (UPDATE/DELETE)
+    @Query("UPDATE Usuario u SET u.plano = null WHERE u.plano.id = :planoId")
+    void desvincularPlanoDosUsuarios(@Param("planoId") Long planoId);
 
     Page<Usuario> findByUsernameContainingIgnoreCase(String username, Pageable pageable);
 
