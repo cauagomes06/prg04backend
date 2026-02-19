@@ -79,10 +79,22 @@ public class UsuarioService implements UsuarioIService, UserDetailsService {
 
     @Override
     @Transactional(readOnly = true)
-    public Page<Usuario> buscarTodos(Pageable pageable) {
-        return usuarioRepository.findAll(pageable);
-    }
+    public Page<Usuario> buscarTodos(Pageable pageable, String search, String perfil) {
 
+        // 1. Trata o filtro de Perfil
+        String filtroPerfil = "";
+        // Ignora se for nulo, vazio, ou a palavra "Todos" (independente de maiúscula/minúscula)
+        if (perfil != null && !perfil.trim().isEmpty() && !perfil.equalsIgnoreCase("TODOS")) {
+            // Força para maiúsculo para bater com o padrão do banco de dados
+            filtroPerfil = perfil.toUpperCase();
+        }
+
+        // 2. Trata a Busca por Texto
+        String termoBusca = (search != null && !search.isBlank()) ? search : "";
+
+        // 3. Executa a query única
+        return usuarioRepository.findWithFilters(termoBusca, filtroPerfil, pageable);
+    }
     @Override
     @Transactional
     public void delete(Long id) {

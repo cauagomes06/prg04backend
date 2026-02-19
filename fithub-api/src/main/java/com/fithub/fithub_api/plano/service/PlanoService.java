@@ -1,6 +1,7 @@
 package com.fithub.fithub_api.plano.service;
 
 import com.fithub.fithub_api.exception.EntityNotFoundException;
+import com.fithub.fithub_api.infraestructure.exception.EntityEmUsoException;
 import com.fithub.fithub_api.plano.exception.PlanoUniqueViolationException;
 import com.fithub.fithub_api.plano.entity.Plano;
 import com.fithub.fithub_api.plano.repository.PlanoRepository;
@@ -60,7 +61,7 @@ public class PlanoService implements PlanoIService {
 
         Plano plano = this.buscarPlanoById(id);
         if(usuarioRepository.existsByPlanoId(plano.getId())){
-            throw new IllegalStateException("Não é possivel excluir o plano,pois existem usuarios associados a ele");
+            throw new EntityEmUsoException("Não é possivel excluir o plano,pois existem usuarios associados a ele");
         }
         planoRepository.deleteById(id);
     }

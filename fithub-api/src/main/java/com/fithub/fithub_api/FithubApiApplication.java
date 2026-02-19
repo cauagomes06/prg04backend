@@ -9,6 +9,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @SpringBootApplication
 @EnableJpaAuditing
 @EnableScheduling
+
 public class FithubApiApplication {
 
 	public static void main(String[] args) {

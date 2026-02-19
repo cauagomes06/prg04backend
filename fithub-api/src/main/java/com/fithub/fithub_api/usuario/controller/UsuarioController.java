@@ -44,18 +44,24 @@ public class UsuarioController  {
 
 
     @GetMapping
-    @PreAuthorize("hasRole('ADMIN')") // 🔒 MELHORIA: Só admin lista todos
-    public ResponseEntity<Page<UsuarioResponseDto>> buscaTodos(Pageable pageable){
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Page<UsuarioResponseDto>> buscaTodos(
+            @RequestParam(value = "search", required = false) String search,
+            @RequestParam(value = "perfil", required = false) String perfil,
+            Pageable pageable) {
 
-        Page<Usuario> usuarioPage =usuarioService.buscarTodos(pageable);
+        // Chama o service passando o termo de busca e o perfil selecionado
+        Page<Usuario> usuarioPage = usuarioService.buscarTodos(pageable, search, perfil);
 
+        // Converte a página de entidades para DTOs antes de retornar
         Page<UsuarioResponseDto> responseDtoPage = usuarioPage.map(usuarioMapper::toDto);
+
         return ResponseEntity.ok(responseDtoPage);
     }
 
 
     @GetMapping("/{id}")
-    // 🔒 MELHORIA: Só Admin ou o próprio usuário podem ver os detalhes completos por ID
+    // Só Admin ou o próprio usuário podem ver os detalhes completos por ID
     // Obs: Isso exige que o Spring Security consiga ler o ID do principal, ou você confia no Service.
     // Simplificação segura: Apenas Admin usa este endpoint. O usuário comum usa o /me.
     @PreAuthorize("hasRole('ADMIN')")

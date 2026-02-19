@@ -19,7 +19,7 @@ public interface UsuarioIService {
 
     Usuario buscarPorId(Long id);
 
-    Page<Usuario> buscarTodos(Pageable pageable);
+    Page<Usuario> buscarTodos(Pageable pageable, String search, String perfil);
 
     void delete(Long id);
 

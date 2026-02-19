@@ -25,6 +25,20 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
     Optional<Usuario> findByUsername(@Param("username") String username);
 
 
+    Page<Usuario> findByUsernameContainingIgnoreCase(String username, Pageable pageable);
+
+    @Query(
+            value = "SELECT u FROM Usuario u " +
+                    "LEFT JOIN FETCH u.pessoa " +
+                    "LEFT JOIN FETCH u.perfil " +
+                    "WHERE (:perfil = '' OR u.perfil.nome = :perfil) " +
+                    "AND (:search = '' OR LOWER(u.username) LIKE LOWER(CONCAT('%', :search, '%')))",
+            countQuery = "SELECT COUNT(u) FROM Usuario u " +
+                    "WHERE (:perfil = '' OR u.perfil.nome = :perfil) " +
+                    "AND (:search = '' OR LOWER(u.username) LIKE LOWER(CONCAT('%', :search, '%')))"
+    )
+    Page<Usuario> findWithFilters(@Param("search") String search, @Param("perfil") String perfil, Pageable pageable);
+
     @Query(value = "SELECT u FROM Usuario u LEFT JOIN FETCH u.pessoa ORDER BY u.scoreTotal DESC",
             countQuery = "SELECT count(u) FROM Usuario u")
     Page<Usuario> findAllByOrderByScoreTotalDesc(Pageable pageable);

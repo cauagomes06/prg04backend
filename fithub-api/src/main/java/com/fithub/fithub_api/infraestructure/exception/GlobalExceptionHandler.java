@@ -109,6 +109,8 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                 .body(new ErrorMessage(request, HttpStatus.NOT_FOUND, ex.getMessage()));
     }
 
+
+
     //excecoes conflict
     @ExceptionHandler({
             PerfilUniqueViolationException.class,
@@ -118,6 +120,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
             PlanoUniqueViolationException.class,
             UsernameUniqueViolationException.class,
             CpfUniqueViolationException.class,
+            EntityEmUsoException.class
 
     })
     public ResponseEntity<ErrorMessage> handleConflictRuleErrors(
