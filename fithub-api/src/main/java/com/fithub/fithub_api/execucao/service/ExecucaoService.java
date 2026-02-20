@@ -7,6 +7,7 @@ import com.fithub.fithub_api.execucao.entity.TreinoExecucao;
 import com.fithub.fithub_api.execucao.mapper.ExecucaoMapper;
 import com.fithub.fithub_api.execucao.repository.ExecucaoRepository;
 import com.fithub.fithub_api.exercicio.repository.ExercicoRepository;
+import com.fithub.fithub_api.gamificacao.service.GamificacaoIService;
 import com.fithub.fithub_api.infraestructure.SecurityUtils;
 import com.fithub.fithub_api.treino.entity.Treino;
 import com.fithub.fithub_api.treino.repository.TreinoRepository;
@@ -21,21 +22,27 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
 import java.util.ArrayList;
-
 @Service
 @RequiredArgsConstructor
-public class ExecucaoService  implements  ExecucaoIService{
+public class ExecucaoService implements ExecucaoIService {
     private final ExecucaoRepository execucaoRepository;
     private final TreinoRepository treinoRepository;
     private final ExercicoRepository exercicoRepository;
     private final UsuarioRepository usuarioRepository;
+    private final GamificacaoIService gamificacaoIService;
     private final ExecucaoMapper execucaoMapper;
-    private final SecurityUtils securityUtils; // Para pegar o usuário logado
+    private final SecurityUtils securityUtils;
+
+    private static final int XP_POR_NIVEL = 1000; // Mantenha o mesmo valor do GamificacaoService
 
     @Override
     @Transactional
     public TreinoExecucaoResponseDto registrarExecucao(ExecucaoCreateDto dto) {
         Usuario usuario = securityUtils.getUsuarioLogado();
+
+        // 1. Capturar o nível ANTES da nova pontuação
+        int nivelAnterior = (usuario.getScoreTotal() / XP_POR_NIVEL) + 1;
+
         Treino treino = treinoRepository.findById(dto.getTreinoId())
                 .orElseThrow(() -> new EntityNotFoundException("Treino não encontrado"));
 
@@ -43,11 +50,9 @@ public class ExecucaoService  implements  ExecucaoIService{
         execucao.setUsuario(usuario);
         execucao.setTreino(treino);
 
-        // 1. Cálculo da duração
         long segundos = Duration.between(dto.getDataInicio(), dto.getDataFim()).getSeconds();
         execucao.setDuracaoSegundos(segundos);
 
-        // 2. Processamento dos Itens e Pontos Base
         int pontosTotais = 0;
         execucao.setItens(new ArrayList<>());
 
@@ -59,24 +64,28 @@ public class ExecucaoService  implements  ExecucaoIService{
             item.setSeriesConcluidas(itemDto.getSeriesConcluidas());
 
             execucao.getItens().add(item);
-
-            // Regra simples: 10 pontos por série concluída
             pontosTotais += (itemDto.getSeriesConcluidas() * 10);
         }
 
         execucao.setPontosGanhos(pontosTotais);
 
-        int scoreTotal =  usuario.getScoreTotal();
-        usuario.setScoreTotal(usuario.getScoreTotal() + pontosTotais);
+        // O GamificacaoService atualiza o score no objeto usuario e salva no banco
+        gamificacaoIService.adicionarPontos(usuario, pontosTotais);
 
+        // 2. Capturar o nível DEPOIS da atualização
+        int nivelNovo = (usuario.getScoreTotal() / XP_POR_NIVEL) + 1;
 
-        // 3. Salvar
-        usuarioRepository.save(usuario);
+        // 3. Salvar a execução
         TreinoExecucao salva = execucaoRepository.save(execucao);
 
+        // 4. Mapear para DTO e enriquecer com as informações de Gamificação
+        TreinoExecucaoResponseDto response = execucaoMapper.toResponseDto(salva);
 
+        // Seta manualmente os campos que o Mapper não conhece
+        response.setSubiuDeNivel(nivelNovo > nivelAnterior);
+        response.setNivelAtual(nivelNovo);
 
-        return execucaoMapper.toResponseDto(salva);
+        return response;
     }
 
     @Override

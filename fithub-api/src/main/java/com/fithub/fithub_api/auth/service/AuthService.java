@@ -1,7 +1,6 @@
-package com.fithub.fithub_api.auth.controller;
+package com.fithub.fithub_api.auth.service;
 
 import com.fithub.fithub_api.infraestructure.exception.PlanoDataViolation;
-import com.fithub.fithub_api.plano.exception.PlanoUniqueViolationException;
 import com.fithub.fithub_api.usuario.entity.StatusPlano;
 import com.fithub.fithub_api.usuario.entity.Usuario;
 import com.fithub.fithub_api.usuario.service.UsuarioService;

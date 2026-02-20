@@ -10,7 +10,6 @@
     import com.fithub.fithub_api.usuario.entity.Usuario;
     import com.fithub.fithub_api.treino.dto.ItemTreinoCreateDto;
     import com.fithub.fithub_api.treino.dto.TreinoCreateDto;
-    import com.fithub.fithub_api.treino.mapper.TreinoMapper;
     import com.fithub.fithub_api.usuario.repository.UsuarioRepository;
     import lombok.RequiredArgsConstructor;
     import org.springframework.data.domain.Page;
@@ -30,6 +29,7 @@
         private final TreinoRepository treinoRepository;
         private final ExercicioService exercicioService;
         private final UsuarioRepository usuarioRepository;
+
 
         @Override
         @Transactional

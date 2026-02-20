@@ -18,6 +18,8 @@ public class TreinoExecucaoResponseDto {
     private LocalDateTime dataInicio;
     private LocalDateTime dataFim;
     private Long duracaoSegundos;
+    private boolean subiuDeNivel;
+    private Integer nivelAtual;
     private Integer pontosGanhos;
     private String observacoesGerais;
     private List<ItemExecucaoResponseDto> itens;

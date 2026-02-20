@@ -1,6 +1,7 @@
 package com.fithub.fithub_api.auth.controller;// ...
 import com.fithub.fithub_api.auth.dto.LoginRequestDto;
 import com.fithub.fithub_api.auth.dto.TokenResponseDto;
+import com.fithub.fithub_api.auth.service.AuthService;
 import com.fithub.fithub_api.infraestructure.jwt.JwtTokenService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
