@@ -1,5 +1,6 @@
 package com.fithub.fithub_api.treino.service;
 
+import com.fithub.fithub_api.treino.dto.TreinoResponseDto;
 import com.fithub.fithub_api.treino.entity.Treino;
 import com.fithub.fithub_api.usuario.entity.Usuario;
 import com.fithub.fithub_api.treino.dto.TreinoCreateDto;
@@ -34,4 +35,5 @@ public interface TreinoIService {
 
     Page<Treino> buscarTreinosPorFiltro(String filtro, String termo, Pageable pageable, Usuario usuarioLogado);
 
+    Page<TreinoResponseDto> buscarTreinosPublicosDoUsuario(Long usuarioId, Pageable pageable);
 }

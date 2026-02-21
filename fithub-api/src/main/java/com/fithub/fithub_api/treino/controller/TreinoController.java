@@ -10,6 +10,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -140,5 +141,15 @@ public class TreinoController {
             @AuthenticationPrincipal Usuario usuarioLogado) {
         treinoService.deixarDeSeguirTreino(id, usuarioLogado);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/usuario/{id}/publicos")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<Page<TreinoResponseDto>> getTreinosPublicosDeUmUsuario(
+            @PathVariable Long id,
+            @PageableDefault(size = 6, sort = "dataCriacao") Pageable pageable) {
+
+        Page<TreinoResponseDto> treinos = treinoService.buscarTreinosPublicosDoUsuario(id, pageable);
+        return ResponseEntity.ok(treinos);
     }
 }

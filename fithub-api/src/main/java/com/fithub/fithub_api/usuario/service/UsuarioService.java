@@ -2,10 +2,12 @@ package com.fithub.fithub_api.usuario.service;
 
 import com.fithub.fithub_api.aula.dto.InstrutorResponseDto;
 import com.fithub.fithub_api.exception.EntityNotFoundException;
+import com.fithub.fithub_api.gamificacao.service.GamificacaoIService;
 import com.fithub.fithub_api.infraestructure.service.FileBucketService;
 import com.fithub.fithub_api.pessoa.repository.PessoaRepository;
 import com.fithub.fithub_api.plano.entity.Plano;
 import com.fithub.fithub_api.plano.repository.PlanoRepository;
+import com.fithub.fithub_api.usuario.dto.UsuarioPerfilPublicoDto;
 import com.fithub.fithub_api.usuario.exception.CpfUniqueViolationException;
 import com.fithub.fithub_api.usuario.exception.PasswordInvalidException;
 import com.fithub.fithub_api.usuario.exception.UsernameUniqueViolationException;
@@ -41,6 +43,7 @@ public class UsuarioService implements UsuarioIService, UserDetailsService {
     private final PerfilRepository perfilRepository;
     private final PasswordEncoder passwordEncoder;
     private final FileBucketService fileBucketService;
+    private final GamificacaoIService  gamificacaoIService;
 
     @Override
     @Transactional
@@ -200,5 +203,17 @@ public class UsuarioService implements UsuarioIService, UserDetailsService {
         usuario.setDataVencimentoPlano(LocalDate.now().plusDays(30));
 
         usuarioRepository.save(usuario);
+    }
+    @Override
+    @Transactional(readOnly = true)
+    public UsuarioPerfilPublicoDto buscarPerfilPublico(Long usuarioId) {
+        Usuario usuario = usuarioRepository.findById(usuarioId)
+                .orElseThrow(() -> new EntityNotFoundException("Usuário não encontrado."));
+
+        // Extrai os dados dinâmicos de gamificação
+        var progresso = gamificacaoIService.calcularProgresso(usuario.getScoreTotal());
+
+        // Delega a conversão para o Mapper e retorna o DTO
+        return UsuarioMapper.toPerfilPublicoDto(usuario, progresso.getNivel(), progresso.getTituloNivel());
     }
 }

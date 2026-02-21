@@ -3,9 +3,12 @@
     import com.fithub.fithub_api.exception.EntityNotFoundException;
     import com.fithub.fithub_api.exercicio.entity.Exercicio;
     import com.fithub.fithub_api.exercicio.service.ExercicioService;
+    import com.fithub.fithub_api.infraestructure.SecurityUtils;
     import com.fithub.fithub_api.itemtreino.entity.ItemTreino;
+    import com.fithub.fithub_api.treino.dto.TreinoResponseDto;
     import com.fithub.fithub_api.treino.entity.StatusTreino;
     import com.fithub.fithub_api.treino.entity.Treino;
+    import com.fithub.fithub_api.treino.mapper.TreinoMapper;
     import com.fithub.fithub_api.treino.repository.TreinoRepository;
     import com.fithub.fithub_api.usuario.entity.Usuario;
     import com.fithub.fithub_api.treino.dto.ItemTreinoCreateDto;
@@ -29,7 +32,7 @@
         private final TreinoRepository treinoRepository;
         private final ExercicioService exercicioService;
         private final UsuarioRepository usuarioRepository;
-
+        private final SecurityUtils    securityUtils;
 
         @Override
         @Transactional
@@ -303,6 +306,18 @@
                 default:
                     return treinoRepository.buscarRecentes(pageable);
             }
+        }
+        @Override
+        @Transactional(readOnly = true)
+        public Page<TreinoResponseDto> buscarTreinosPublicosDoUsuario(Long usuarioId, Pageable pageable) {
+
+            // 1. Pega o usuário logado para manter o contexto social (botão de seguir)
+            Usuario usuarioLogado = securityUtils.getUsuarioLogado();
+            // 2. Procura na base de dados apenas os treinos com status PUBLICO
+            Page<Treino> paginaDeTreinos = treinoRepository.findByCriadorIdAndStatus(usuarioId, StatusTreino.PUBLICO, pageable);
+
+            // 3. Converte a Entidade para DTO usando o Mapper injetado no Service
+            return paginaDeTreinos.map(treino -> TreinoMapper.toDto(treino, usuarioLogado));
         }
 
     }

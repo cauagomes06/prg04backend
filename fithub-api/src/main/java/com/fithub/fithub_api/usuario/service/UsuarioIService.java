@@ -1,6 +1,7 @@
 package com.fithub.fithub_api.usuario.service;
 
 import com.fithub.fithub_api.aula.dto.InstrutorResponseDto;
+import com.fithub.fithub_api.usuario.dto.UsuarioPerfilPublicoDto;
 import com.fithub.fithub_api.usuario.entity.Usuario;
 
 import com.fithub.fithub_api.usuario.dto.UsuarioCreateDto;
@@ -32,4 +33,6 @@ public interface UsuarioIService {
     void alterarPerfilUsuario(Long usuarioId, Long novoPerfilId);
 
     void atualizarPlanoUsuario(Long usuarioId, Long novoPlanoId);
+
+     UsuarioPerfilPublicoDto buscarPerfilPublico(Long usuarioId);
 }

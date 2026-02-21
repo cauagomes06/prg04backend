@@ -66,4 +66,6 @@ public interface TreinoRepository extends JpaRepository<Treino, Long> {
            WHERE t.status = com.fithub.fithub_api.treino.entity.StatusTreino.PUBLICO
            """)
     Page<Treino> findPublicos(Pageable pageable);
+
+    Page<Treino> findByCriadorIdAndStatus(Long usuarioId, StatusTreino status, Pageable pageable);
 }

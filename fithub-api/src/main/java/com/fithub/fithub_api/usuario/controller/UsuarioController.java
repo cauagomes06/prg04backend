@@ -2,6 +2,9 @@ package com.fithub.fithub_api.usuario.controller;
 
 import com.fithub.fithub_api.pessoa.dto.PessoaUpdateDto;
 import com.fithub.fithub_api.pessoa.service.PessoaService;
+import com.fithub.fithub_api.treino.dto.TreinoResponseDto;
+import com.fithub.fithub_api.treino.service.TreinoIService;
+import com.fithub.fithub_api.treino.service.TreinoService;
 import com.fithub.fithub_api.usuario.dto.*;
 import com.fithub.fithub_api.usuario.entity.Usuario;
 import com.fithub.fithub_api.usuario.service.UsuarioService;
@@ -32,6 +35,7 @@ public class UsuarioController  {
 
     private final UsuarioService usuarioService;
     private final UsuarioMapper usuarioMapper;
+    private final TreinoIService treinoService;
     private final PessoaService pessoaService;
 
 
@@ -170,6 +174,19 @@ public class UsuarioController  {
     }
 
 
+    @GetMapping("/{id}/perfil-publico")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<UsuarioPerfilPublicoDto> getPerfilPublico(@PathVariable Long id) {
+        return ResponseEntity.ok(usuarioService.buscarPerfilPublico(id));
+    }
+
+    @GetMapping("/{id}/treinos-publicos")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<Page<TreinoResponseDto>> getTreinosPublicos(
+            @PathVariable Long id,
+            Pageable pageable) {
+        return ResponseEntity.ok(treinoService.buscarTreinosPublicosDoUsuario(id, pageable));
+    }
 
     // --- MÉTODOS AUXILIARES ---
 

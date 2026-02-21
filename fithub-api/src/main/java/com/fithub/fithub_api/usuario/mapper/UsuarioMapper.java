@@ -5,6 +5,7 @@
     import com.fithub.fithub_api.perfil.repository.PerfilRepository;
     import com.fithub.fithub_api.pessoa.entity.Pessoa;
     import com.fithub.fithub_api.plano.repository.PlanoRepository;
+    import com.fithub.fithub_api.usuario.dto.UsuarioPerfilPublicoDto;
     import com.fithub.fithub_api.usuario.dto.UsuarioRankingDto;
     import com.fithub.fithub_api.usuario.entity.Usuario;
     import com.fithub.fithub_api.pessoa.dto.PessoaResponseDto;
@@ -133,5 +134,20 @@
             return usuarios.stream()
                     .map(UsuarioMapper::toInstrutorDto)
                     .collect(Collectors.toList());
+        }
+
+        public static UsuarioPerfilPublicoDto toPerfilPublicoDto(Usuario usuario, int nivel, String tituloNivel) {
+            if (usuario == null) return null;
+
+            return UsuarioPerfilPublicoDto.builder()
+                    .id(usuario.getId())
+                    .nomeCompleto(usuario.getPessoa().getNomeCompleto())
+                    .username(usuario.getUsername())
+                    .fotoUrl(usuario.getFotoUrl())
+                    .scoreTotal(usuario.getScoreTotal())
+                    .nivel(nivel)
+                    .tituloNivel(tituloNivel)
+                    .membroDesde(usuario.getDataCriacao())
+                    .build();
         }
     }
