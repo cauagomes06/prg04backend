@@ -21,6 +21,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 @Service
 @RequiredArgsConstructor
@@ -28,7 +31,6 @@ public class ExecucaoService implements ExecucaoIService {
     private final ExecucaoRepository execucaoRepository;
     private final TreinoRepository treinoRepository;
     private final ExercicoRepository exercicoRepository;
-    private final UsuarioRepository usuarioRepository;
     private final GamificacaoIService gamificacaoIService;
     private final ExecucaoMapper execucaoMapper;
     private final SecurityUtils securityUtils;
@@ -39,6 +41,7 @@ public class ExecucaoService implements ExecucaoIService {
     @Transactional
     public TreinoExecucaoResponseDto registrarExecucao(ExecucaoCreateDto dto) {
         Usuario usuario = securityUtils.getUsuarioLogado();
+
 
         // 1. Capturar o nível ANTES da nova pontuação
         int nivelAnterior = (usuario.getScoreTotal() / XP_POR_NIVEL) + 1;
@@ -94,4 +97,23 @@ public class ExecucaoService implements ExecucaoIService {
         return execucaoRepository.findByUsuarioId(usuarioId, pageable)
                 .map(execucaoMapper::toResponseDto);
     }
+
+    @Override
+    @Transactional
+    public boolean jaTreinouHoje() {
+
+        Usuario usuario = securityUtils.getUsuarioLogado();
+
+        // Define o intervalo do dia atual (00:00:00 até 23:59:59)
+        LocalDateTime inicioDia = LocalDate.now().atStartOfDay();
+        LocalDateTime fimDia = LocalDate.now().atTime(LocalTime.MAX);
+
+        boolean jaTreinouHoje = execucaoRepository.existsByUsuarioIdAndDataInicioBetween(
+                usuario.getId(), inicioDia, fimDia
+        );
+
+        // Retorna true se ele ainda NÃO treinou hoje
+        return !jaTreinouHoje;
+    }
+
 }

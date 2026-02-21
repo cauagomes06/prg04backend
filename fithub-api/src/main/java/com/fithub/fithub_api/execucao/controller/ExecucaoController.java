@@ -5,6 +5,7 @@ import com.fithub.fithub_api.execucao.dto.execucao.ExecucaoCreateDto;
 import com.fithub.fithub_api.execucao.dto.execucao.TreinoExecucaoResponseDto;
 import com.fithub.fithub_api.execucao.service.ExecucaoIService;
 import com.fithub.fithub_api.infraestructure.SecurityUtils;
+import com.fithub.fithub_api.usuario.entity.Usuario;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -39,4 +40,12 @@ public class ExecucaoController  {
 
         return ResponseEntity.ok(historico);
     }
+
+    @GetMapping("/pode-treinar")
+    public ResponseEntity<Boolean> verificarPermissaoTreino(){
+
+
+        return ResponseEntity.ok(execucaoService.jaTreinouHoje());
+    }
+
 }

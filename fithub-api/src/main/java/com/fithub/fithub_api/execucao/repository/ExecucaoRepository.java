@@ -7,6 +7,7 @@ import org.springframework.data.domain.Range;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -17,4 +18,11 @@ public interface ExecucaoRepository  extends JpaRepository<TreinoExecucao, Integ
     Page<TreinoExecucao> findByUsuarioIdOrderByDataInicioDesc(Long usuarioId, Pageable pageable);
 
     Page<TreinoExecucao> findByUsuarioId(Long usuarioId, Pageable pageable);
+
+    // Verifica se existe execução para o usuário entre o início e o fim do dia de hoje
+    boolean existsByUsuarioIdAndDataInicioBetween(
+            Long usuarioId,
+            LocalDateTime start,
+            LocalDateTime end
+    );
 }
