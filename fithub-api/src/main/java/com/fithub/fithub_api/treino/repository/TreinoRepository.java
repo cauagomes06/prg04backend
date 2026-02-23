@@ -68,4 +68,9 @@ public interface TreinoRepository extends JpaRepository<Treino, Long> {
     Page<Treino> findPublicos(Pageable pageable);
 
     Page<Treino> findByCriadorIdAndStatus(Long usuarioId, StatusTreino status, Pageable pageable);
+
+    long countByCriadorId(Long id);
+
+    @Query("SELECT COUNT(u) FROM Usuario u JOIN u.treinosAssinados t WHERE t.id = :treinoId")
+    long countSeguidoresByTreinoId(@Param("treinoId") Long treinoId);
 }

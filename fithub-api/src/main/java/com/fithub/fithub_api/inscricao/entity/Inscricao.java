@@ -38,4 +38,8 @@ public class Inscricao extends PersistenceEntity implements Serializable {
 
     private LocalDateTime dataSubmissao;
 
+    @Column(nullable = false, columnDefinition = "boolean default false")
+    private boolean vencedor = false;
+
+
 }

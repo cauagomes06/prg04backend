@@ -7,8 +7,8 @@ import com.fithub.fithub_api.execucao.entity.ItemExecucao;
 import com.fithub.fithub_api.execucao.entity.TreinoExecucao;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.stream.Collectors;
-
 @Component
 public class ExecucaoMapper {
 
@@ -16,7 +16,6 @@ public class ExecucaoMapper {
         if (treinoExecucao == null) {
             return null;
         }
-
 
         TreinoExecucaoResponseDto dto = new TreinoExecucaoResponseDto();
         dto.setId(treinoExecucao.getId());
@@ -26,6 +25,10 @@ public class ExecucaoMapper {
         dto.setDataFim(treinoExecucao.getDataFim());
         dto.setDuracaoSegundos(treinoExecucao.getDuracaoSegundos());
         dto.setPontosGanhos(treinoExecucao.getPontosGanhos());
+
+        // O campo 'conquistas' no DTO será preenchido manualmente no Service,
+        // mas garantimos que a lista comece vazia e não nula para evitar erros no React
+        dto.setConquistas(new ArrayList<>());
 
         if (treinoExecucao.getItens() != null) {
             dto.setItens(treinoExecucao.getItens().stream()

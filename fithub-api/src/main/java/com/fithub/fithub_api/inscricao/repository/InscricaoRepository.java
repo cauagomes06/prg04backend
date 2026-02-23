@@ -22,4 +22,8 @@ public interface InscricaoRepository extends JpaRepository<Inscricao, Long> {
     List<Inscricao> findByCompeticaoId(Long competicaoId);
 
     void deleteByCompeticaoId(Long competicaoId);
+
+    long countByUsuarioId(Long id);
+
+    long countByUsuarioIdAndVencedorTrue(Long usuarioId);
 }

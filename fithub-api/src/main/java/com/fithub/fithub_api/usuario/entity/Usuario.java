@@ -96,6 +96,12 @@ public class Usuario extends PersistenceEntity implements Serializable, UserDeta
     @Column(name = "score_total", nullable = false, columnDefinition = "int default 0")
     private int scoreTotal = 0;
 
+    @Column(name = "sequencia_atual", nullable = false)
+    private int sequenciaAtual = 0; // Inicializa com 0
+
+    @Column(name = "data_ultimo_treino")
+    private LocalDate dataUltimoTreino;
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
 

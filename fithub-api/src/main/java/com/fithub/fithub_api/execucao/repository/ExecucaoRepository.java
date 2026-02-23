@@ -25,4 +25,6 @@ public interface ExecucaoRepository  extends JpaRepository<TreinoExecucao, Integ
             LocalDateTime start,
             LocalDateTime end
     );
+
+    long countByUsuarioId(Long id);
 }

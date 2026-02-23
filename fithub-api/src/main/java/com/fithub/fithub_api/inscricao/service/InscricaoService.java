@@ -4,6 +4,7 @@ import com.fithub.fithub_api.competicao.entity.Competicao;
 import com.fithub.fithub_api.competicao.entity.StatusCompeticao;
 import com.fithub.fithub_api.competicao.entity.TipoDeOrdenacao;
 import com.fithub.fithub_api.competicao.service.CompeticaoIService;
+import com.fithub.fithub_api.conquista.service.ConquistaIService;
 import com.fithub.fithub_api.exception.EntityNotFoundException;
 import com.fithub.fithub_api.inscricao.exception.InscricaoConflictException;
 import com.fithub.fithub_api.inscricao.dto.InscricaoResponseDto;
@@ -27,7 +28,7 @@ public class InscricaoService implements InscricaoIService {
 
     private final InscricaoRepository inscricaoRepository;
     private final CompeticaoIService competicaoIService;
-
+    private final ConquistaIService conquistaIService;
 
     @Override
     @Transactional
@@ -35,24 +36,37 @@ public class InscricaoService implements InscricaoIService {
 
         Competicao competicao = competicaoIService.buscarPorId(idCompeticao);
 
-        if(inscricaoRepository.existsByUsuarioIdAndCompeticaoId(usuarioLogado.getId(), idCompeticao)){ //verifica se o usuario ja se inscreveu na competicao
-            throw new InscricaoConflictException("Voce ja esta inscrito na competicao: "+ competicao.getNome());
+        // 1. Validações de negócio
+        if(inscricaoRepository.existsByUsuarioIdAndCompeticaoId(usuarioLogado.getId(), idCompeticao)){
+            throw new InscricaoConflictException("Você já está inscrito na competição: " + competicao.getNome());
         }
 
-        if (competicao.getDataFim().isBefore(LocalDateTime.now())){ //verfica se a competicao ja acabou
-            throw new RuntimeException("As incrições ja foram encerradas");
+        if (competicao.getDataFim().isBefore(LocalDateTime.now()) || competicao.getStatus() != StatusCompeticao.ABERTA){
+            throw new RuntimeException("As inscrições já foram encerradas");
         }
 
-        if(competicao.getStatus() != StatusCompeticao.ABERTA){
-            throw new RuntimeException("As incrições ja foram encerradas");
-        }
-        // cria a inscricao e preenche os campos de usuario e competicao
+        // 2. Cria e salva a inscrição
         Inscricao inscricao = new Inscricao();
-
         inscricao.setUsuario(usuarioLogado);
         inscricao.setCompeticao(competicao);
 
-        return inscricaoRepository.save(inscricao);
+        Inscricao inscricaoSalva = inscricaoRepository.save(inscricao);
+
+        // 🎯 GATILHO DE CONQUISTAS ===================================================
+        try {
+            // Conta quantas competições o usuário já participou (incluindo esta)
+            long totalParticipacoes = inscricaoRepository.countByUsuarioId(usuarioLogado.getId());
+
+            // Dispara o processamento para a métrica de participações
+            conquistaIService.processarProgresso(usuarioLogado, "COMPETICOES_PARTICIPOU", (double) totalParticipacoes);
+
+        } catch (Exception e) {
+            // Log de erro silencioso para não cancelar a inscrição do usuário
+            System.err.println("Erro ao processar conquista de participação: " + e.getMessage());
+        }
+        // ============================================================================
+
+        return inscricaoSalva;
     }
 
     @Override

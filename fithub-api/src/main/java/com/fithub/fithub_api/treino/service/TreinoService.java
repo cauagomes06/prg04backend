@@ -1,5 +1,6 @@
     package com.fithub.fithub_api.treino.service;
 
+    import com.fithub.fithub_api.conquista.service.ConquistaIService;
     import com.fithub.fithub_api.exception.EntityNotFoundException;
     import com.fithub.fithub_api.exercicio.entity.Exercicio;
     import com.fithub.fithub_api.exercicio.service.ExercicioService;
@@ -33,17 +34,17 @@
         private final ExercicioService exercicioService;
         private final UsuarioRepository usuarioRepository;
         private final SecurityUtils    securityUtils;
+        private final ConquistaIService conquistaIService;
 
         @Override
         @Transactional
         public Treino criarTreino(TreinoCreateDto dto, Usuario criador) {
 
-            // 1. Criar o Treino básico (sem itens ainda)
+            // 1. Criar o Treino básico
             Treino treino = new Treino();
             treino.setNome(dto.getNome());
             treino.setDescricao(dto.getDescricao());
             treino.setCriador(criador);
-
             treino.setStatus(StatusTreino.PRIVADO);
 
             if (dto.getItems() != null && !dto.getItems().isEmpty()) {
@@ -51,30 +52,39 @@
 
                 for (ItemTreinoCreateDto itemDto : dto.getItems()) {
                     ItemTreino novoItem = new ItemTreino();
-
-                    // Copiar dados simples
                     novoItem.setSeries(itemDto.getSeries());
                     novoItem.setRepeticoes(itemDto.getRepeticoes());
                     novoItem.setDescanso(itemDto.getDescanso());
                     novoItem.setOrdem(itemDto.getOrdem());
 
-                    // BUSCAR O EXERCÍCIO REAL PELO ID
                     Exercicio exercicio = exercicioService.buscarPorId(itemDto.getExercicioId());
-                    if(exercicio ==null){
-                        throw new EntityNotFoundException("Exercicio de nome"+exercicio.getNome()+"nao encontrado");
+                    if (exercicio == null) {
+                        // Ajustado o erro: se é null, não conseguimos pegar o nome dele
+                        throw new EntityNotFoundException("Exercício com ID " + itemDto.getExercicioId() + " não encontrado");
                     }
                     novoItem.setExercicio(exercicio);
-
                     novoItem.setTreino(treino);
-
                     listaItens.add(novoItem);
                 }
-
                 treino.setItensTreino(listaItens);
             }
 
-            // 3. Salvar tudo (o CascadeType.ALL vai salvar os itens automaticamente)
-            return treinoRepository.save(treino);
+            // 2. Salvar primeiro para garantir que o treino exista no banco
+            Treino treinoSalvo = treinoRepository.save(treino);
+
+            //  GATILHO DE CONQUISTAS ===================================================
+            try {
+                // Agora buscamos o total atualizado (já incluindo o salvo acima)
+                long totalCriados = treinoRepository.countByCriadorId(criador.getId());
+
+                conquistaIService.processarProgresso(criador, "TREINOS_CRIADOS", (double) totalCriados);
+            } catch (Exception e) {
+                // Logamos o erro mas não interrompemos o fluxo do usuário
+                System.err.println("Erro ao processar conquista de criador: " + e.getMessage());
+            }
+            // ============================================================================
+
+            return treinoSalvo;
         }
 
         @Override
@@ -228,24 +238,32 @@
         @Transactional
         @Override
         public void seguirTreino(Long treinoId, Usuario usuarioLogado) {
-            // 1. Busca o treino
             Treino treino = buscarTreinoPorId(treinoId);
 
-            // 2. Validação: Não pode seguir treino privado de outro (a menos que seja o dono)
+            // Validações
             if (treino.getStatus() == StatusTreino.PRIVADO && !treino.getCriador().equals(usuarioLogado)) {
                 throw new AccessDeniedException("Não é possível seguir um treino privado.");
             }
-
-            // 3. Validação: Não faz sentido seguir o próprio treino
             if (treino.getCriador().equals(usuarioLogado)) {
                 throw new IllegalArgumentException("Você já é o dono deste treino.");
             }
 
-            // 4. Adiciona na lista do USUÁRIO
+            // Persiste o seguimento
             usuarioLogado.getTreinosAssinados().add(treino);
-
-            // 5. Salva o usuário para persistir a relação na tabela de junção
             usuarioRepository.save(usuarioLogado);
+
+            // GATILHO DE CONQUISTA PARA O CRIADOR ======================================
+            try {
+                Usuario criador = treino.getCriador();
+                long totalSeguidores = treinoRepository.countSeguidoresByTreinoId(treinoId);
+
+                // O motor processa e retorna se houve novas conquistas
+                conquistaIService.processarProgresso(criador, "SEGUIDORES_POR_TREINO", (double) totalSeguidores);
+
+            } catch (Exception e) {
+                System.err.println("Erro ao processar conquista de popularidade: " + e.getMessage());
+            }
+            // ===========================================================================
         }
 
         @Transactional
