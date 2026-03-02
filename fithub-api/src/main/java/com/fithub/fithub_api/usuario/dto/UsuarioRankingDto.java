@@ -11,4 +11,5 @@ public class UsuarioRankingDto {
     private Long usuarioId;
     private String nomeCompleto;
     private int scoreTotal;
+    private String fotoUrl;
 }

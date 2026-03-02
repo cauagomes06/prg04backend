@@ -19,6 +19,7 @@ public class UsuarioResponseDto {
 
     private String nomePlano;
     private Long planoId;
+    private String statusPlano;
 
     private String nomePerfil;
 

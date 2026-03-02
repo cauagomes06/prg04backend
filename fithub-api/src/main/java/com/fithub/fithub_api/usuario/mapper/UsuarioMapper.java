@@ -7,6 +7,7 @@
     import com.fithub.fithub_api.plano.repository.PlanoRepository;
     import com.fithub.fithub_api.usuario.dto.UsuarioPerfilPublicoDto;
     import com.fithub.fithub_api.usuario.dto.UsuarioRankingDto;
+    import com.fithub.fithub_api.usuario.entity.StatusPlano;
     import com.fithub.fithub_api.usuario.entity.Usuario;
     import com.fithub.fithub_api.pessoa.dto.PessoaResponseDto;
     import com.fithub.fithub_api.usuario.dto.UsuarioCreateDto;
@@ -15,7 +16,8 @@
     import org.modelmapper.ModelMapper;
     import org.springframework.security.crypto.password.PasswordEncoder;
     import org.springframework.stereotype.Component;
-    
+
+    import java.time.LocalDate;
     import java.util.List;
     import java.util.stream.Collectors;
     
@@ -47,6 +49,9 @@
                     .orElseThrow(() -> new EntityNotFoundException("Plano não encontrado")));
             // 4. Codifica a senha
             usuario.setPassword(passwordEncoder.encode(createDto.getPassword()));
+
+            usuario.setStatusPlano(StatusPlano.ATIVO);
+            usuario.setDataVencimentoPlano(LocalDate.now().plusDays(30));
     
             return usuario;
         }
@@ -63,7 +68,12 @@
                 responseDto.setScoreTotal(usuario.getScoreTotal());
                 responseDto.setDataCriacao(usuario.getDataCriacao());
                 responseDto.setFotoUrl(usuario.getFotoUrl());
-    
+
+                if (usuario.getStatusPlano() != null) {
+                    responseDto.setStatusPlano(usuario.getStatusPlano().name());
+                } else {
+                    responseDto.setStatusPlano("INATIVO"); // Prevenção de nulos
+                }
                 // Verificação de segurança para Pessoa
                 if (usuario.getPessoa() != null) {
                     PessoaResponseDto pessoaDto = new PessoaResponseDto();

@@ -31,7 +31,7 @@ public class AuthenticationController {
                 loginDto.getUsername(), loginDto.getPassword()
         );
 
-        authService.verificarStatusPlanoPorUsername(loginDto.getUsername());
+        //authService.verificarStatusPlanoPorUsername(loginDto.getUsername());
 
         Authentication authentication = authenticationManager.authenticate(authToken);
 

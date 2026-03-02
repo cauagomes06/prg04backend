@@ -8,6 +8,7 @@ import com.fithub.fithub_api.pessoa.repository.PessoaRepository;
 import com.fithub.fithub_api.plano.entity.Plano;
 import com.fithub.fithub_api.plano.repository.PlanoRepository;
 import com.fithub.fithub_api.usuario.dto.UsuarioPerfilPublicoDto;
+import com.fithub.fithub_api.usuario.entity.StatusPlano;
 import com.fithub.fithub_api.usuario.exception.CpfUniqueViolationException;
 import com.fithub.fithub_api.usuario.exception.PasswordInvalidException;
 import com.fithub.fithub_api.usuario.exception.UsernameUniqueViolationException;
@@ -200,6 +201,7 @@ public class UsuarioService implements UsuarioIService, UserDetailsService {
                 .orElseThrow(() -> new EntityNotFoundException("Plano não encontrado"));
 
         usuario.setPlano(novoPlano);
+        usuario.setStatusPlano(StatusPlano.ATIVO);
         usuario.setDataVencimentoPlano(LocalDate.now().plusDays(30));
 
         usuarioRepository.save(usuario);
