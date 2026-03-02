@@ -19,4 +19,5 @@ public class AulaResponseDto {
 
     private Integer vagasDisponiveis;
     private InstrutorResponseDto instrutor;
+    private String Status;
 }

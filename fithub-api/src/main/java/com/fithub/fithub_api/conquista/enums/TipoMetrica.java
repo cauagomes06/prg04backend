@@ -1,0 +1,12 @@
+package com.fithub.fithub_api.conquista.enums;
+
+public enum TipoMetrica {
+    AULAS_PARTICIPADAS,
+    AULAS_MINISTRADAS,
+    COMPETICOES_PARTICIPADAS,
+    COMPETICOES_VENCIDAS,
+    TREINOS_CONCLUIDOS,
+    TREINOS_SEQUENCIA,
+    TREINOS_SOCIAL,
+    TREINOS_CRIADOS
+}

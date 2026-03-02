@@ -3,6 +3,7 @@ package com.fithub.fithub_api.conquista.service;
 import com.fithub.fithub_api.conquista.dto.ConquistaGaleriaDto;
 import com.fithub.fithub_api.conquista.entity.Conquista;
 import com.fithub.fithub_api.conquista.entity.UsuarioConquista;
+import com.fithub.fithub_api.conquista.enums.TipoMetrica;
 import com.fithub.fithub_api.conquista.mapper.ConquistaMapper;
 import com.fithub.fithub_api.conquista.repository.ConquistaRepository;
 import com.fithub.fithub_api.conquista.repository.UsuarioConquistaRepository;
@@ -36,7 +37,8 @@ public class ConquistaService implements ConquistaIService {
      */
     @Override
     @Transactional
-    public List<Conquista> processarProgresso(Usuario usuario, String tipoMetrica, Double valorAcumulado) {
+    public List<Conquista> processarProgresso(Usuario usuario,
+                                              TipoMetrica tipoMetrica, Double valorAcumulado) {
         // 1. Busca no banco TODAS as medalhas que dependem dessa métrica
         List<Conquista> conquistasPossiveis = conquistaRepository.findByTipoMetrica(tipoMetrica);
         List<Conquista> novasConquistas = new ArrayList<>();

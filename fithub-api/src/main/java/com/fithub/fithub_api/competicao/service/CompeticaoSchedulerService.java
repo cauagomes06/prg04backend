@@ -3,6 +3,7 @@ package com.fithub.fithub_api.competicao.service;
 import com.fithub.fithub_api.competicao.entity.Competicao;
 import com.fithub.fithub_api.competicao.entity.StatusCompeticao;
 import com.fithub.fithub_api.competicao.repository.CompeticaoRepository;
+import com.fithub.fithub_api.conquista.enums.TipoMetrica;
 import com.fithub.fithub_api.conquista.service.ConquistaIService;
 import com.fithub.fithub_api.inscricao.entity.Inscricao;
 import com.fithub.fithub_api.inscricao.repository.InscricaoRepository;
@@ -73,7 +74,7 @@ public class CompeticaoSchedulerService {
                             // GATILHO DE CONQUISTA PARA O CAMPEÃO
                             try {
                                 long totalVitorias = inscricaoRepository.countByUsuarioIdAndVencedorTrue(participante.getId());
-                                conquistaIService.processarProgresso(participante, "COMPETICOES_VENCIDAS", (double) totalVitorias);
+                                conquistaIService.processarProgresso(participante, TipoMetrica.COMPETICOES_VENCIDAS, (double) totalVitorias);
                             } catch (Exception e) {
                                 logger.error("Erro ao processar conquista de vitória: ", e.getMessage());
                             }

@@ -1,5 +1,6 @@
 package com.fithub.fithub_api.reserva.dto;
 
+import com.fithub.fithub_api.reserva.enums.StatusReserva;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -14,5 +15,6 @@ public class ReservaResponseDto {
     private String nomeAula;
     private LocalDateTime dataHoraAula;
     private String nomeInstrutor;
+    private StatusReserva  statusReserva;
 
 }

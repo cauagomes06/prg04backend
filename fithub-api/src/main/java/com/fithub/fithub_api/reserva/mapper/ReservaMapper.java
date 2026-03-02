@@ -19,6 +19,7 @@ public class ReservaMapper {
         dto.setId(reserva.getId());
         dto.setAulaId(reserva.getAula().getId());
         dto.setDataHoraAula(reserva.getAula().getDataHoraInicio());
+        dto.setStatusReserva(reserva.getStatus()); // Passando o Enum diretamente
 
         if (reserva.getAula().getInstrutor() != null && reserva.getAula().getInstrutor().getPessoa() != null) {
             dto.setNomeInstrutor(reserva.getAula().getInstrutor().getPessoa().getNomeCompleto());
@@ -26,26 +27,29 @@ public class ReservaMapper {
         return dto;
     }
 
+    // ---> MÉTODO QUE ESTAVA FALTANDO PARA O CONTROLLER FUNCIONAR <---
     public static List<ReservaResponseDto> toListDto(List<Reserva> reservas) {
-        return reservas.stream().map(ReservaMapper::toDto).collect(Collectors.toList());
-
+        return reservas.stream()
+                .map(ReservaMapper::toDto)
+                .collect(Collectors.toList());
     }
 
     public static ParticipanteDto toParticipanteDto(Reserva reserva) {
         ParticipanteDto dto = new ParticipanteDto();
 
-
         if (reserva.getUsuario() != null) {
             dto.setIdUsuario(reserva.getUsuario().getId());
+            dto.setStatusReserva(reserva.getStatus().name()); // Usando o name() pois no ParticipanteDto é String
 
             if (reserva.getUsuario().getPessoa() != null) {
                 dto.setNomeCompleto(reserva.getUsuario().getPessoa().getNomeCompleto());
             } else {
-                dto.setNomeCompleto("Usuário sem dados pessoais");
+                dto.setNomeCompleto("Usuário sem nome");
             }
         }
         return dto;
     }
+
     // Aceita Collection para funcionar com o Set<Reserva> da entidade Aula
     public static List<ParticipanteDto> toParticipanteListDto(Collection<Reserva> reservas) {
         return reservas.stream()

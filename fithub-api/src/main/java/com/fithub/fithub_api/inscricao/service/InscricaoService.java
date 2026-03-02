@@ -4,6 +4,7 @@ import com.fithub.fithub_api.competicao.entity.Competicao;
 import com.fithub.fithub_api.competicao.entity.StatusCompeticao;
 import com.fithub.fithub_api.competicao.entity.TipoDeOrdenacao;
 import com.fithub.fithub_api.competicao.service.CompeticaoIService;
+import com.fithub.fithub_api.conquista.enums.TipoMetrica;
 import com.fithub.fithub_api.conquista.service.ConquistaIService;
 import com.fithub.fithub_api.exception.EntityNotFoundException;
 import com.fithub.fithub_api.inscricao.exception.InscricaoConflictException;
@@ -58,7 +59,7 @@ public class InscricaoService implements InscricaoIService {
             long totalParticipacoes = inscricaoRepository.countByUsuarioId(usuarioLogado.getId());
 
             // Dispara o processamento para a métrica de participações
-            conquistaIService.processarProgresso(usuarioLogado, "COMPETICOES_PARTICIPOU", (double) totalParticipacoes);
+            conquistaIService.processarProgresso(usuarioLogado, TipoMetrica.COMPETICOES_PARTICIPADAS, (double) totalParticipacoes);
 
         } catch (Exception e) {
             // Log de erro silencioso para não cancelar a inscrição do usuário

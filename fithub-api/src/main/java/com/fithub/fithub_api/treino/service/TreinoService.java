@@ -1,5 +1,6 @@
     package com.fithub.fithub_api.treino.service;
 
+    import com.fithub.fithub_api.conquista.enums.TipoMetrica;
     import com.fithub.fithub_api.conquista.service.ConquistaIService;
     import com.fithub.fithub_api.exception.EntityNotFoundException;
     import com.fithub.fithub_api.exercicio.entity.Exercicio;
@@ -77,7 +78,7 @@
                 // Agora buscamos o total atualizado (já incluindo o salvo acima)
                 long totalCriados = treinoRepository.countByCriadorId(criador.getId());
 
-                conquistaIService.processarProgresso(criador, "TREINOS_CRIADOS", (double) totalCriados);
+                conquistaIService.processarProgresso(criador, TipoMetrica.TREINOS_CRIADOS, (double) totalCriados);
             } catch (Exception e) {
                 // Logamos o erro mas não interrompemos o fluxo do usuário
                 System.err.println("Erro ao processar conquista de criador: " + e.getMessage());
@@ -258,7 +259,7 @@
                 long totalSeguidores = treinoRepository.countSeguidoresByTreinoId(treinoId);
 
                 // O motor processa e retorna se houve novas conquistas
-                conquistaIService.processarProgresso(criador, "SEGUIDORES_POR_TREINO", (double) totalSeguidores);
+                conquistaIService.processarProgresso(criador, TipoMetrica.TREINOS_SOCIAL, (double) totalSeguidores);
 
             } catch (Exception e) {
                 System.err.println("Erro ao processar conquista de popularidade: " + e.getMessage());

@@ -21,17 +21,15 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/reservas")
 @RequiredArgsConstructor
-public class ReservaController implements ReservaIController{
+public class ReservaController {
 
     private final ReservaService reservaService;
-    private final UsuarioService usuarioService;
 
     @GetMapping("/usuario")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<List<ReservaResponseDto>> listaReservas(
-            @AuthenticationPrincipal UserDetails userDetails) {
+            @AuthenticationPrincipal  Usuario usuarioLogado) {
 
-        Usuario usuarioLogado = getUsuarioLogado(userDetails);
         List<Reserva> minhasReservas = reservaService.buscarMinhasReservas(usuarioLogado);
 
         return ResponseEntity.ok(ReservaMapper.toListDto(minhasReservas));
@@ -40,9 +38,7 @@ public class ReservaController implements ReservaIController{
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<ReservaResponseDto> criarReserva(
             @RequestBody @Valid ReservaCreateDto dto,
-            @AuthenticationPrincipal UserDetails userDetails) {
-
-        Usuario usuarioLogado = getUsuarioLogado(userDetails);
+            @AuthenticationPrincipal  Usuario usuarioLogado) {
 
         // Chama o serviço passando o ID que veio no corpo da requisição
         Reserva novaReserva = reservaService.criarReserva(dto.getAulaId(), usuarioLogado);
@@ -53,13 +49,18 @@ public class ReservaController implements ReservaIController{
     @DeleteMapping("/delete/{id}")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<Void> cancelarReserva(@PathVariable Long id ,
-    @AuthenticationPrincipal UserDetails userDetails){
-        Usuario usuarioLogado = getUsuarioLogado(userDetails);
+    @AuthenticationPrincipal  Usuario usuarioLogado){
         reservaService.cancelarReserva(id, usuarioLogado);
         return ResponseEntity.noContent().build();
     }
-    // Método auxiliar
-    private Usuario getUsuarioLogado(UserDetails userDetails) {
-        return usuarioService.buscarPorUsername(userDetails.getUsername());
+
+    @PatchMapping("/{id}/checkin")
+    @PreAuthorize("hasRole('PERSONAL')") // Apenas instrutores
+    public ResponseEntity<Void> realizarCheckIn(
+            @PathVariable Long id,
+            @AuthenticationPrincipal  Usuario usuarioLogado) {
+
+        reservaService.realizarCheckIn(id, usuarioLogado);
+        return ResponseEntity.noContent().build();
     }
 }

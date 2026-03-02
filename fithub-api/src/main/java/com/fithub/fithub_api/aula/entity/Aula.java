@@ -1,5 +1,6 @@
 package com.fithub.fithub_api.aula.entity;
 
+import com.fithub.fithub_api.aula.enums.StatusAula;
 import com.fithub.fithub_api.infraestructure.entity.Auditable;
 import com.fithub.fithub_api.infraestructure.entity.PersistenceEntity;
 import com.fithub.fithub_api.reserva.entity.Reserva;
@@ -46,5 +47,9 @@ public class Aula extends PersistenceEntity implements Serializable {
     // Uma Aula pode ter muitas Reservas
     @OneToMany(mappedBy = "aula", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Reserva> reservas = new HashSet<>();
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private StatusAula status = StatusAula.AGENDADA;
 
 }

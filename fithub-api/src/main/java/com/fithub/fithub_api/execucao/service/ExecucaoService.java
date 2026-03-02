@@ -1,5 +1,6 @@
 package com.fithub.fithub_api.execucao.service;
 
+import com.fithub.fithub_api.conquista.enums.TipoMetrica;
 import com.fithub.fithub_api.conquista.service.ConquistaIService;
 import com.fithub.fithub_api.execucao.dto.execucao.ExecucaoCreateDto;
 import com.fithub.fithub_api.execucao.dto.execucao.TreinoExecucaoResponseDto;
@@ -100,7 +101,7 @@ import java.util.ArrayList;
             try {
                 // Gatilho 1: Total de Treinos
                 long totalTreinos = execucaoRepository.countByUsuarioId(usuario.getId());
-                conquistaIService.processarProgresso(usuario, "TREINOS_CONCLUIDOS", (double) totalTreinos);
+                conquistaIService.processarProgresso(usuario, TipoMetrica.TREINOS_CONCLUIDOS, (double) totalTreinos);
 
                 // Gatilho 2: Lógica de Streak (Sequência)
                 if (usuario.getDataUltimoTreino() == null) {
@@ -116,7 +117,7 @@ import java.util.ArrayList;
                 usuarioRepository.save(usuario);
 
                 // Processa conquistas de sequência
-                conquistaIService.processarProgresso(usuario, "SEQUENCIA_DIAS", (double) usuario.getSequenciaAtual());
+                conquistaIService.processarProgresso(usuario, TipoMetrica.TREINOS_SEQUENCIA, (double) usuario.getSequenciaAtual());
 
                 //  CAPTURAR CONQUISTAS PARA O FRONT-END
                 // Buscamos a galeria e filtramos apenas as que acabaram de ser desbloqueadas (últimos segundos)

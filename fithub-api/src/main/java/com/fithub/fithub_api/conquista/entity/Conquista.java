@@ -1,6 +1,7 @@
 package com.fithub.fithub_api.conquista.entity;
 
 import com.fithub.fithub_api.conquista.enums.TipoMedalha;
+import com.fithub.fithub_api.conquista.enums.TipoMetrica;
 import com.fithub.fithub_api.infraestructure.entity.PersistenceEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
@@ -31,10 +32,9 @@ public class Conquista extends PersistenceEntity {
     @Column(unique = true, nullable = false)
     private String chaveTecnica; // Ex: "PRIMEIRO_TREINO"
 
-    // --- CAMPOS DO SISTEMA DINÂMICO ---
-
+    @Enumerated(EnumType.STRING)
     @Column(name = "tipo_metrica", nullable = false)
-    private String tipoMetrica; // Ex: "TREINOS_CONCLUIDOS", "CARGA_TOTAL"
+    private TipoMetrica tipoMetrica;
 
     @Column(name = "valor_necessario", nullable = false)
     private Double valorNecessario; // Ex: 1.0 (para 1 treino), 1000.0 (para carga)

@@ -3,6 +3,7 @@ package com.fithub.fithub_api.reserva.entity;
 import com.fithub.fithub_api.aula.entity.Aula;
 import com.fithub.fithub_api.infraestructure.entity.Auditable;
 import com.fithub.fithub_api.infraestructure.entity.PersistenceEntity;
+import com.fithub.fithub_api.reserva.enums.StatusReserva;
 import com.fithub.fithub_api.usuario.entity.Usuario;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -32,4 +33,7 @@ public class Reserva extends PersistenceEntity implements Serializable {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "aula_id", nullable = false)
     private Aula aula;
+
+    @Enumerated(EnumType.STRING)
+    private StatusReserva status = StatusReserva.AGENDADA;
 }
