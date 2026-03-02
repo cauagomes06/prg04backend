@@ -41,6 +41,9 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorize -> authorize
                         // --- ENDPOINTS PÚBLICOS (WHITELIST) ---
+
+                        //manter o projeto ativo
+                        .requestMatchers(HttpMethod.GET, "/api/ping").permitAll()
                         // Autenticação e Registo
                         .requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/usuarios/register").permitAll()
