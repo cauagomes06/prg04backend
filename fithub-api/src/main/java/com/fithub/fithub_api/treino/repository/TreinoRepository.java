@@ -4,6 +4,7 @@ import com.fithub.fithub_api.treino.entity.Treino;
 import com.fithub.fithub_api.treino.entity.StatusTreino;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -14,6 +15,7 @@ import java.util.List;
 @Repository
 public interface TreinoRepository extends JpaRepository<Treino, Long> {
 
+    @EntityGraph(attributePaths = {"criador", "criador.pessoa"})
     @Query("""
        SELECT t FROM Treino t
        JOIN t.criador u
@@ -30,6 +32,7 @@ public interface TreinoRepository extends JpaRepository<Treino, Long> {
             Pageable pageable
     );
 
+    @EntityGraph(attributePaths = {"criador", "criador.pessoa"})
     @Query("""
            SELECT t FROM Treino t
            JOIN t.alunosSeguidores u
@@ -38,6 +41,7 @@ public interface TreinoRepository extends JpaRepository<Treino, Long> {
            """)
     Page<Treino> buscarTreinosDeQuemSigo(@Param("usuarioId") Long usuarioId, Pageable pageable);
 
+    @EntityGraph(attributePaths = {"criador", "criador.pessoa"})
     @Query("""
            SELECT t FROM Treino t
            WHERE t.status = com.fithub.fithub_api.treino.entity.StatusTreino.PUBLICO
@@ -45,6 +49,7 @@ public interface TreinoRepository extends JpaRepository<Treino, Long> {
            """)
     Page<Treino> buscarRecentes(Pageable pageable);
 
+    @EntityGraph(attributePaths = {"criador", "criador.pessoa"})
     @Query("""
            SELECT t FROM Treino t
            WHERE t.status = com.fithub.fithub_api.treino.entity.StatusTreino.PUBLICO
@@ -52,6 +57,7 @@ public interface TreinoRepository extends JpaRepository<Treino, Long> {
            """)
     Page<Treino> buscarMelhoresAvaliados(Pageable pageable);
 
+    @EntityGraph(attributePaths = {"criador", "criador.pessoa"})
     @Query("""
            SELECT t FROM Treino t
            WHERE t.status = com.fithub.fithub_api.treino.entity.StatusTreino.PUBLICO
@@ -59,14 +65,17 @@ public interface TreinoRepository extends JpaRepository<Treino, Long> {
            """)
     Page<Treino> buscarMaisSeguidos(Pageable pageable);
 
+    @EntityGraph(attributePaths = {"criador", "criador.pessoa"})
     List<Treino> findByCriadorId(Long criadorId);
 
+    @EntityGraph(attributePaths = {"criador", "criador.pessoa"})
     @Query("""
            SELECT t FROM Treino t
            WHERE t.status = com.fithub.fithub_api.treino.entity.StatusTreino.PUBLICO
            """)
     Page<Treino> findPublicos(Pageable pageable);
 
+    @EntityGraph(attributePaths = {"criador", "criador.pessoa"})
     Page<Treino> findByCriadorIdAndStatus(Long usuarioId, StatusTreino status, Pageable pageable);
 
     long countByCriadorId(Long id);

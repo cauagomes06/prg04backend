@@ -8,6 +8,7 @@
         import jakarta.persistence.*;
         import lombok.*;
         import lombok.experimental.SuperBuilder;
+        import org.hibernate.annotations.BatchSize;
 
         import java.io.Serializable;
         import java.util.ArrayList;
@@ -20,8 +21,10 @@
         @SuperBuilder
         @AllArgsConstructor
         @NoArgsConstructor
-        @Table(name = "treinos")
-        @Entity
+        @Table(name = "treinos", indexes = {
+                @Index(name = "idx_treino_status", columnList = "status"),
+                @Index(name = "idx_treino_media_nota", columnList = "media_nota")
+        })        @Entity
         public class Treino extends PersistenceEntity implements Serializable {
 
 
@@ -45,10 +48,12 @@
                     cascade = CascadeType.ALL,
                     orphanRemoval = true
             )
+            @BatchSize(size = 20)
             private List<ItemTreino> itensTreino = new ArrayList<>();
 
             // Lista de alunos que seguem este treino
             @ManyToMany(mappedBy = "treinosAssinados")
+            @BatchSize(size = 20)
             private Set<Usuario> alunosSeguidores = new HashSet<>();
 
 
