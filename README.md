@@ -1,64 +1,120 @@
-# FitHub API - Backend (Spring Boot)
+# Fit Hub API — Backend
 
-API RESTful para o sistema de gestão de ginásios FitHub. Esta aplicação é responsável por toda a lógica de negócio, persistência de dados e autenticação, utilizando o framework Spring Boot.
+## 📌 Overview
 
-## 🚀 Tecnologias
+O **Fit Hub API** é uma aplicação backend desenvolvida para suportar uma plataforma completa de gestão fitness.  
+O sistema permite gerenciamento de treinos, exercícios, aulas, planos de subscrição e um sistema de gamificação com progressão por XP e conquistas.
 
-* **Linguagem:** Java 17+
-* **Framework:** Spring Boot 3.x
-* **Build Tool:** Apache Maven
-* **Base de Dados:** PostgreSQL (Configurável)
-* **Segurança:** Spring Security + JWT (JSON Web Tokens)
-* **ORM:** Spring Data JPA / Hibernate
-* **Mapeamento:** ModelMapper
-* **Documentação:** OpenAPI 3 (Swagger UI)
+O projeto foi estruturado com foco em:
 
-## ✨ Principais Funcionalidades
+- Arquitetura limpa e organizada por domínios  
+- Segurança com autenticação JWT  
+- Escalabilidade  
+- Boas práticas REST  
+- Separação clara de responsabilidades  
 
-A API oferece endpoints protegidos por JWT para gerir as seguintes áreas:
+---
 
-### 👤 Usuários e Perfis
-* Registo de novos usuários (`ROLE_CLIENTE` por padrão).
-* Sistema de autenticação (Login).
-* Gerenciamento de perfis (`ADMIN`, `PERSONAL`, `CLIENTE`).
-* Atualização de dados pessoais e senha do perfil logado.
-* Ranking geral de usuários com base no `scoreTotal`.
+## 🚀 Funcionalidades
 
-### 🏋️ Treinos e Exercícios
-* CRUD de exercícios (catálogo) disponível para `ADMIN` e `PERSONAL`.
-* Criação e gerenciamento de fichas de treino por usuários.
-* Funcionalidade de publicar treinos para a biblioteca.
-* Funcionalidade de clonar treinos públicos da biblioteca.
+- Autenticação e autorização com JWT  
+- Gestão de utilizadores e perfis  
+- Criação e acompanhamento de treinos  
+- Biblioteca de exercícios  
+- Sistema de reservas de aulas  
+- Planos de subscrição  
+- Sistema de gamificação (XP, níveis e conquistas)  
+- Dashboard administrativo  
+- Sistema interno de notificações  
+- Upload de ficheiros para Amazon S3  
 
-### 🗓️ Aulas de Grupo
-* CRUD de aulas agendadas (disponível para `ADMIN` e `PERSONAL`).
-* Sistema de reservas de vaga (`Reserva`) para clientes.
-* Contagem de vagas disponíveis em tempo real.
-* Endpoint para listar instrutores (`ROLE_PERSONAL`).
+---
 
-### 🏆 Competições
-* CRUD de competições (disponível para `ADMIN` e `PERSONAL`).
-* Inscrição em competições ativas.
-* Submissão de resultados pelos participantes.
-* Ranking dinâmico por competição (ordenado por Maior/Menor melhor).
-* Scheduler para processar e premiar os vencedores ao final da competição.
+## 🛠 Stack Tecnológica
 
-### 📢 Notificações
-* Sistema de notificações personalizadas (ex: ganho de pontos em competição).
-* Funcionalidade de "broadcast" para `ADMIN` enviar mensagens para todos os usuários.
+- Java 17  
+- Spring Boot (Web, Data JPA, Security)  
+- Hibernate (ORM)  
+- JWT (JSON Web Token)  
+- Maven  
+- Amazon S3  
+- OpenAPI / Swagger  
 
-## ⚙️ Configuração Local
+---
 
-### 1. Pré-requisitos
-* Java Development Kit (JDK) 17+
-* Apache Maven
-* PostgreSQL Database
+## 🏗 Arquitetura
 
-### 2. Configuração do Banco de Dados
+A aplicação segue arquitetura em camadas:
 
-Crie um banco de dados PostgreSQL e ajuste as credenciais no arquivo `src/main/resources/application.properties`:
+Controller → Service → Repository
 
-```properties
-spring.datasource.url=${DB_URL:jdbc:postgresql://localhost:5432/fithub}
-spring.datasource.username=${DB_USERNAME:fithubuser}
-spring.datasource.password=${DB_PASSWORD:fithubpassword}
+
+### Organização por domínios
+
+| Módulo | Responsabilidade |
+|--------|------------------|
+| `auth` | Autenticação e geração de tokens |
+| `usuario / perfil / pessoa` | Gestão de utilizadores |
+| `treino / exercicio / execucao` | Gestão de treinos |
+| `aula / reserva` | Agendamento de aulas |
+| `gamificacao / conquista` | Sistema de progressão |
+| `dashboard` | Dados analíticos |
+| `notificacao` | Notificações internas |
+
+---
+
+## 🔐 Segurança
+
+- Autenticação baseada em JWT  
+- Controle de acesso por roles  
+- Proteção de endpoints sensíveis via Spring Security  
+- Validação de dados de entrada  
+
+---
+
+## 📄 Documentação da API
+
+Swagger UI  
+http://localhost:8080/swagger-ui.html  
+
+OpenAPI Docs  
+http://localhost:8080/v3/api-docs  
+
+---
+
+## ⚙️ Execução Local
+
+### Pré-requisitos
+
+- Java 17+  
+- Maven  
+- Base de dados configurada  
+
+### Clonar o projeto
+
+```bash
+git clone https://github.com/cauagomes06/prg04backend.git
+cd fithub-api
+
+
+### Configurar variáveis de ambiente
+
+Definir no `application.properties` ou via variáveis de ambiente:
+
+```env
+DB_URL=
+DB_USERNAME=
+DB_PASSWORD=
+JWT_SECRET=
+AWS_ACCESS_KEY=
+AWS_SECRET_KEY=
+```
+
+📦 Status
+
+Projeto em desenvolvimento contínuo.
+
+👨‍💻 Autor
+
+Cauã Gomes
+Desenvolvedor Backend Java
